@@ -1,27 +1,31 @@
 package com.easyrsvpgroup.easyrsvp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
+@Table(name = "invite")
 public class Invite {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Getter
     private UUID inviteId;
     @Getter
     @Setter
-    private String name;
+    private String ownerName;
     @Getter
     @Setter
-    private String details;
+    private String eventDetails;
     @Getter
     @Setter
-    private String address;
+    private String eventAddress;
     @Getter
     @Setter
     @Temporal(TemporalType.TIMESTAMP)
@@ -34,6 +38,14 @@ public class Invite {
     private String responseCode;
     @Getter
     @Setter
-    @Temporal(TemporalType.DATE)
-    private Date dateCreated;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+    @Getter
+    @Setter
+    private String timezone;
+    @Getter
+    @Setter
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "invite", cascade=CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Response> responses;
 }

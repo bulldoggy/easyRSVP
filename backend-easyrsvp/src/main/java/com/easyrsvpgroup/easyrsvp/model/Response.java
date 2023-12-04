@@ -1,5 +1,7 @@
 package com.easyrsvpgroup.easyrsvp.model;
 
+import com.easyrsvpgroup.easyrsvp.enumeration.Decision;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,31 +11,34 @@ import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
+@Table(name = "response")
 public class Response {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID responseId;
     @Getter
     @Setter
-    private String name;
+    private String guestName;
     @Getter
     @Setter
-    private String mobile;
+    private String guestMobile;
     @Getter
     @Setter
-    private String decision; //Yes, No, Maybe
+    @Enumerated(EnumType.STRING)
+    private Decision guestDecision;
     @Getter
     @Setter
-    private String notes;
+    private String guestNotes;
     @Getter
     @Setter
-    @ManyToOne(cascade=CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonBackReference
     private Invite invite;
     @Getter
     @Setter
-    private String uniqueCode;
+    private String guestCode;
     @Getter
     @Setter
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastModified;
 }
