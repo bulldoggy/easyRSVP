@@ -11,12 +11,11 @@ import {
   Route,
 } from "react-router-dom";
 
-//Add footer for users to add comments
-//add page for host/response/guest code that dont exist
+//Add footer for users to add comments and plaything with redis
+//add page for host/response/guest code that dont exist (deleted codes)
 //beautify words and colours () change bg color of app to pale green/yellow
 //show snackbar if internal server error or bad request (ex. details too long)
-//see if theres error for radio group
-//remove box for datefield
+//see if theres error prompt for radio group
 
 function App() {
   return (

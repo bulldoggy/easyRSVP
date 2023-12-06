@@ -24,7 +24,6 @@ export default function Home() {
 
     const [copySnackbar, setCopySnackbar] = useState(false)
     const [errorSnackbar, setErrorSnackbar] = useState(false)
-    const [submitted, setSubmitted] = useState(false);
     
     const [invite, setInvite] = useState(null);
     const [inviteLink, setInviteLink] = useState('');
@@ -57,6 +56,7 @@ export default function Home() {
 
             e.preventDefault();
             const inviteCreateDTO = {ownerName, eventDetails, eventAddress, eventDate, timezone};
+            //logging to view inviteCreateDTO
             console.log(inviteCreateDTO);
             fetch("http://localhost:8080/rsvp/createInvite", {
                 method:"POST",
@@ -66,7 +66,6 @@ export default function Home() {
             .then(res => res.json())
             .then(result => {
                 setInvite(result);
-                setSubmitted(true);
             })
         }
     }
@@ -80,6 +79,8 @@ export default function Home() {
 
     return (
         <Container style={{paddingTop:"60px"}}>
+            {//if invite not created yet
+            invite == null &&
             <Paper elevation={3} style={paperStyle}>
                 <h2> Create a new RSVP </h2>
 
@@ -90,100 +91,177 @@ export default function Home() {
                 }}
                 autoComplete="off"
                 >
-                <TextField id="outlined-basic" label="Host Name" fullWidth required 
-                value={ownerName}
-                onChange={(e)=> {
-                    setOwnerName(e.target.value) 
-                    setNameTouched(true);
-                }}
-                error={nameTouched && ownerName.length === 0}
-                InputProps={{
-                    readOnly: submitted
-                }}
-                />
-                <TextField id="outlined-multiline-static" label="Event Details" multiline fullWidth required rows={3}
-                value={eventDetails}
-                onChange={(e)=> {
-                    setEventDetails(e.target.value) 
-                    setDetailsTouched(true);
-                }}
-                error={detailsTouched && eventDetails.length === 0}
-                InputProps={{
-                    readOnly: submitted
-                }}
-                />
-                <TextField id="outlined-basic" label="Event Address" fullWidth required
-                value={eventAddress}
-                onChange={(e)=> {
-                    setEventAddress(e.target.value)
-                    setAddressTouched(true);
-                }}
-                error={addressTouched && eventAddress.length === 0}
-                InputProps={{
-                    readOnly: submitted
-                }}
-                />
-                <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} >
-                        <DateTimePicker label="Event Date" fullWidth
-                            value={eventDate}
-                            onChange={(e)=> {
-                                setEventDate(e.$d)
-                            }}
-                            InputProps={{
-                                readOnly: submitted
-                            }}
-                            slotProps={{
-                                textField: {
-                                    required: true,
-                                },
-                            }}
-                            ampm={false}                           
-                        />
-                    </LocalizationProvider>
-                    <TextField id="outlined-basic" label="Time Zone (for intl. events)" style={{width: "67%", marginRight: "-15px"}}
-                    value={eventTimezone}
-                    onChange={(e)=>setEventTimezone(e.target.value)}
-                    InputProps={{
-                        readOnly: submitted
-                    }}
+                    <TextField label="Host Name" fullWidth required 
+                        value={ownerName}
+                        onChange={(e)=> {
+                            setOwnerName(e.target.value) 
+                            setNameTouched(true);
+                        }}
+                        error={nameTouched && ownerName.length === 0}
                     />
-                </div>
+                    <TextField label="Event Details" multiline fullWidth required rows={3}
+                        value={eventDetails}
+                        onChange={(e)=> {
+                            setEventDetails(e.target.value) 
+                            setDetailsTouched(true);
+                        }}
+                        error={detailsTouched && eventDetails.length === 0}
+                    />
+                    <TextField label="Event Address" fullWidth required
+                        value={eventAddress}
+                        onChange={(e)=> {
+                            setEventAddress(e.target.value)
+                            setAddressTouched(true);
+                        }}
+                        error={addressTouched && eventAddress.length === 0}
+                    />
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs} >
+                            <DateTimePicker label="Event Date" fullWidth 
+                                format='DD/MM/YYYY hh:mm A'
+                                value={eventDate}
+                                onChange={(e)=> {
+                                    if(eventDate != null) {
+                                        setEventDate(e.$d);
+                                    }
+                                }}
+                                slotProps={{
+                                    textField: {
+                                        required: true,
+                                    },
+                                }}
+                                ampm={true}                           
+                            />
+                        </LocalizationProvider>
+                        <TextField label="Time Zone (for intl. events)" style={{width: "67%", marginRight: "-15px"}}
+                            value={eventTimezone}
+                            onChange={(e)=>setEventTimezone(e.target.value)}
+                        />
+                    </div>
 
-                {invite == null && <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>}
+                    <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>
                 </Box>
             </Paper>
+            } 
 
-            {invite != null && 
-            <Paper elevation={3} style={paperStyle}>
-                <h2> Save the links below! </h2>
-
-                <h4> Use this link to view your guest's responses </h4>
-                <div style={linkDivStyle}>
-                    <TextField id="outlined-basic" fullWidth 
-                        value={inviteLink}
-                        InputProps={{
-                            readOnly: true
+            
+            {//if invite created
+            invite != null && 
+            <>
+                <Paper elevation={3} style={paperStyle}>
+                    <h2> Invite created! </h2>
+                    <Box
+                        component="form"
+                        sx={{
+                            '& > :not(style)': { m: 1 },
                         }}
-                        style={{marginRight:"20px"}}
-                    />
-                    <Button onClick={copyInviteLink} variant="contained" size="small">COPY</Button>
-                </div>
+                        noValidate
+                        autoComplete="off"
+                    >
 
-                <h4> Share this link to your guests </h4>
-                <div style={linkDivStyle}>
-                    <TextField id="outlined-basic" fullWidth 
-                    value={responseLink}
-                        InputProps={{
-                            readOnly: true
-                        }}
-                        style={{marginRight:"20px"}}
-                    />
-                    <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
-                </div>
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
+                        <TextField variant="standard" fullWidth disabled 
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={invite.ownerName}
+                        />
 
-                <br/>
-            </Paper>
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled 
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={invite.eventDetails}
+                        />
+
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
+                        <TextField variant="standard" fullWidth disabled 
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={invite.eventAddress}
+                        />
+
+
+                        <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                            <h4>Date:</h4>
+                        </div>
+
+                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} >
+                                <DateTimePicker fullWidth disableOpenPicker readOnly
+                                format='DD/MM/YYYY hh:mm A'
+                                sx={{
+                                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    marginTop: "-13px",
+                                    marginLeft: "-15px"
+                                }}
+                                value={dayjs(invite.eventDate)}  
+                                ampm={true}
+                                />
+                            </LocalizationProvider>
+
+                            <TextField id="outlined-basic" variant="standard" fullWidth disabled style={{width: "85%"}}
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={invite.timezone}
+                            />
+                        </div>
+                    </Box>
+                </Paper>
+
+                <Paper elevation={3} style={paperStyle}>
+                    <h2> Save the links below! </h2>
+
+                    <h4> Use this link to view your guest's responses </h4>
+                    <div style={linkDivStyle}>
+                        <TextField fullWidth 
+                            value={inviteLink}
+                            InputProps={{
+                                readOnly: true
+                            }}
+                            style={{marginRight:"20px"}}
+                        />
+                        <Button onClick={copyInviteLink} variant="contained" size="small">COPY</Button>
+                    </div>
+
+                    <h4> Share this link to your guests </h4>
+                    <div style={linkDivStyle}>
+                        <TextField fullWidth 
+                        value={responseLink}
+                            InputProps={{
+                                readOnly: true
+                            }}
+                            style={{marginRight:"20px"}}
+                        />
+                        <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
+                    </div>
+
+                    <br/>
+                </Paper>
+            </>
             }
 
             <Snackbar

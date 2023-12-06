@@ -18,9 +18,10 @@ export default function Home() {
         transform: 'translate(-50%, -50%)',
         width: 400,
         bgcolor: 'background.paper',
-        border: '2px solid #000',
-        boxShadow: 24,
+        border: '1px solid #000',
+        //boxShadow: 24,
         p: 4,
+        borderRadius: '6px'
       };
     
     const [guestName, setGuestName] = useState('');
@@ -115,10 +116,10 @@ export default function Home() {
 
     return (
         <Container style={{paddingTop:"60px"}}>
+            {//if invite fetched from server
+            invite != null &&
             <Paper elevation={3} style={paperStyle}>
                 <h2> You have been invited! </h2>
-
-                {invite != null && 
                 <Box
                     component="form"
                     sx={{
@@ -129,31 +130,40 @@ export default function Home() {
                 >
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={invite.ownerName}
                     />
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                    <TextField id="outlined-basic" variant="outlined" multiline fullWidth disabled 
+                    <TextField variant="standard" multiline fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
                         }}
+                        InputProps={{
+                            disableUnderline: true
+                        }}
                         value={invite.eventDetails}
                     />
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={invite.eventAddress}
                     />
@@ -165,37 +175,38 @@ export default function Home() {
 
                     <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
                         <LocalizationProvider dateAdapter={AdapterDayjs} >
-                            <DateTimePicker fullWidth disableOpenPicker
+                            <DateTimePicker fullWidth disableOpenPicker readOnly
+                            format='DD/MM/YYYY hh:mm A'
                             sx={{
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                    WebkitTextFillColor: "#000000",
-                                },
+                                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                marginTop: "-13px",
+                                marginLeft: "-15px"
                             }}
                             value={dayjs(invite.eventDate)}  
-                            InputProps={{
-                                disabled: true,
-                                readOnly: true
-                            }}
                             ampm={true}
                             />
                         </LocalizationProvider>
-                        <TextField id="outlined-basic" variant="outlined" fullWidth disabled style={{width: "70%", marginRight: "-15px"}}
+
+                        <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
                                 },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
                             }}
                             value={invite.timezone}
                         />
                     </div>
                 </Box>
-                }
             </Paper>
+            }
 
-            {editing == false && response != null &&
+            {//if response fetched from server and not editing
+            editing == false && response != null &&
             <Paper elevation={3} style={paperStyle}>
                 <h2> Your personal RSVP </h2>
-
                 <Box
                     component="form"
                     sx={{
@@ -206,59 +217,66 @@ export default function Home() {
                 >
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Guest:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={guestName}
                     />
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Mobile:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={guestMobile}
                     />
 
-                    <FormControl>
-                        <FormLabel id="radio-buttons-group-label">{<h4 style={{color: "black", marginBottom: "-5px", marginTop: "-1px"}}>Attendance</h4>}</FormLabel>
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                            value={guestDecision}
-                        >
-                            <FormControlLabel value="YES" control={<Radio />} label="Yes" />
-                            <FormControlLabel value="NO" control={<Radio />} label="No" />
-                            <FormControlLabel value="UNSURE" control={<Radio />} label="Unsure" />
-                        </RadioGroup>
-                    </FormControl>
-
-                    <br/>
-                    <h4 style={{float: "left", marginBottom: "-3px", marginTop: "-8px"}}> Additional Notes:</h4>
-                    <TextField id="outlined-multiline-static" multiline fullWidth disabled
+                    <h4 style={{float: "left", marginBottom: "-5px"}}> Attendance:</h4>
+                    <TextField variant="standard" multiline fullWidth disabled
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
                         }}
+                        InputProps={{
+                            disableUnderline: true
+                        }}
+                        value={guestDecision}
+                    />
+
+                    <h4 style={{float: "left", marginBottom: "-5px"}}> Additional Notes:</h4>
+                    <TextField variant="standard" multiline fullWidth disabled
+                        sx={{
+                            "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "#000000",
+                            },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
+                        }}
                         value={guestNotes}
                     />
                 </Box>
-                
-                <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "15px"}}>
+                <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly"}}>
                     <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{marginRight: "-140px"}}>Edit</Button>
                     <Button variant="contained"  onClick={() => setModalOpen(true)}color="error" style={{marginLeft: "-140px"}}>Delete</Button>
                 </div>
             </Paper>
             }
 
-            {editing == true && response != null &&
+            {//if response fetched from server and is editing
+            editing == true && response != null &&
             <Paper elevation={3} style={paperStyle}>
                 <h2> Edit RSVP </h2>
 
@@ -269,7 +287,7 @@ export default function Home() {
                 }}
                 autoComplete="off"
                 >
-                    <TextField id="outlined-basic" label="Guest Name" fullWidth required 
+                    <TextField label="Guest Name" fullWidth required 
                         value={guestName}
                         onChange={(e)=> {
                             setGuestName(e.target.value) 
@@ -277,7 +295,7 @@ export default function Home() {
                         }}
                         error={nameTouched && guestName.length === 0}
                     />
-                    <TextField id="outlined-basic" label="Mobile Number" fullWidth required 
+                    <TextField label="Mobile Number" fullWidth required 
                         value={guestMobile}
                         onChange={(e)=> {
                             setGuestMobile(e.target.value) 
@@ -287,7 +305,7 @@ export default function Home() {
                     />
 
                     <FormControl>
-                        <FormLabel id="radio-buttons-group-label">Attendance *</FormLabel>
+                        <FormLabel>Attendance *</FormLabel>
                         <RadioGroup
                             row
                             aria-labelledby="demo-row-radio-buttons-group-label"
@@ -298,13 +316,13 @@ export default function Home() {
                             }}
                             value={guestDecision}
                         >
-                            <FormControlLabel value="YES" control={<Radio />} label="Yes" />
-                            <FormControlLabel value="NO" control={<Radio />} label="No" />
-                            <FormControlLabel value="UNSURE" control={<Radio />} label="Unsure" />
+                            <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                            <FormControlLabel value="No" control={<Radio />} label="No" />
+                            <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
                         </RadioGroup>
                     </FormControl>
 
-                    <TextField id="outlined-multiline-static" label="Additional Notes" multiline fullWidth
+                    <TextField label="Additional Notes" multiline fullWidth
                         value={guestNotes}
                         onChange={(e)=> {
                             setGuestNotes(e.target.value) 
@@ -342,10 +360,10 @@ export default function Home() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={modalStyle}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <Typography variant="h6" component="h2">
                         Confirm deletion of your RSVP?
                     </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    <Typography sx={{ mt: 2 }}>
                         This process is irreversible
                     </Typography>
                     <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px"}}>
