@@ -28,6 +28,7 @@ public class Response {
     private Decision guestDecision;
     @Getter
     @Setter
+    @Column(length = 65555)
     private String guestNotes;
     @Getter
     @Setter

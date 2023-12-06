@@ -1,7 +1,9 @@
 package com.easyrsvpgroup.easyrsvp.controller;
 
 import com.easyrsvpgroup.easyrsvp.dto.InviteCreateDTO;
+import com.easyrsvpgroup.easyrsvp.dto.OutgoingResponseDTO;
 import com.easyrsvpgroup.easyrsvp.dto.ResponseCreateDTO;
+import com.easyrsvpgroup.easyrsvp.dto.ResponseEditDTO;
 import com.easyrsvpgroup.easyrsvp.model.Invite;
 import com.easyrsvpgroup.easyrsvp.model.Response;
 import com.easyrsvpgroup.easyrsvp.service.InviteService;
@@ -88,7 +90,6 @@ public class RsvpController {
     @DeleteMapping("/deleteResponse")
     public void deleteResponse(@RequestParam("code") String guestCode) {
         Response r = responseService.findByGuestCode(guestCode);
-
         Invite i = r.getInvite();
         i.getResponses().remove(r);
 
@@ -97,24 +98,20 @@ public class RsvpController {
     }
 
     @GetMapping("/guest")
-    public Response guest(@RequestParam("code") String guestCode) {
-        return responseService.findByGuestCode(guestCode);
+    public OutgoingResponseDTO guest(@RequestParam("code") String guestCode) {
+        Response response = responseService.findByGuestCode(guestCode);
+        return new OutgoingResponseDTO(response, response.getInvite());
     }
 
     @PutMapping("/editResponse")
-    public Response editInvite(@RequestBody Response response) {
-        Response r = responseService.findByGuestCode(response.getGuestCode());
-        r.setGuestName(response.getGuestName());
-        r.setGuestMobile(response.getGuestMobile());
-        r.setGuestDecision(response.getGuestDecision());
-        r.setGuestNotes(response.getGuestNotes());
-        r.setLastModified(response.getLastModified());
+    public Response editInvite(@RequestBody ResponseEditDTO responseEditDTO) {
+        Response r = responseService.findByGuestCode(responseEditDTO.getGuestCode());
+        r.setGuestName(responseEditDTO.getGuestName());
+        r.setGuestMobile(responseEditDTO.getGuestMobile());
+        r.setGuestDecision(responseEditDTO.getGuestDecision());
+        r.setGuestNotes(responseEditDTO.getGuestNotes());
+        r.setLastModified(new Date());
 
         return responseService.updateResponse(r);
-    }
-
-    @GetMapping("/allInvites")
-    public List<Invite> allInvites() {
-        return inviteService.getAllInvites();
     }
 }

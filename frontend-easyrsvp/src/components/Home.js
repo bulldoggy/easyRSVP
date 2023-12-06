@@ -16,7 +16,7 @@ export default function Home() {
     const [eventDetails, setEventDetails] = useState('');
     const [eventAddress, setEventAddress] = useState('');
     const [eventDate, setEventDate] = useState(dayjs());
-    const [timezone, setTimezone] = useState('');
+    const [eventTimezone, setEventTimezone] = useState('');
 
     const [nameTouched, setNameTouched] = useState(false);
     const [detailsTouched, setDetailsTouched] = useState(false);
@@ -30,6 +30,8 @@ export default function Home() {
     const [inviteLink, setInviteLink] = useState('');
     const [responseLink, setResponseLink] = useState('');
 
+    const timezone = "Local Time";
+
     const copyInviteLink = () => {
         setCopySnackbar(true);
         copy(inviteLink);
@@ -40,20 +42,22 @@ export default function Home() {
         copy(responseLink);
     };
 
-    const submitForm = (e)=>{
+    const submitInvite = (e) => {
         if(ownerName === '' || eventDetails === '' || eventAddress === '') {
             setNameTouched(true);
             setDetailsTouched(true);
             setAddressTouched(true);
             setErrorSnackbar(true);
         } else {
-            if(timezone === '') {
-                setTimezone("Local Time");
+            if(eventTimezone !== '') {
+                timezone = eventTimezone;
+            } else {
+                setEventTimezone(timezone);
             }
 
             e.preventDefault();
             const inviteCreateDTO = {ownerName, eventDetails, eventAddress, eventDate, timezone};
-            
+            console.log(inviteCreateDTO);
             fetch("http://localhost:8080/rsvp/createInvite", {
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
@@ -138,15 +142,15 @@ export default function Home() {
                         />
                     </LocalizationProvider>
                     <TextField id="outlined-basic" label="Time Zone (for intl. events)" style={{width: "67%", marginRight: "-15px"}}
-                    value={timezone}
-                    onChange={(e)=>setTimezone(e.target.value)}
+                    value={eventTimezone}
+                    onChange={(e)=>setEventTimezone(e.target.value)}
                     InputProps={{
                         readOnly: submitted
                     }}
                     />
                 </div>
 
-                {invite == null && <Button variant="contained" color="success" onClick={submitForm}>Submit</Button>}
+                {invite == null && <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>}
                 </Box>
             </Paper>
 
@@ -186,8 +190,9 @@ export default function Home() {
                 open={copySnackbar}
                 onClose={() => setCopySnackbar(false)}
                 autoHideDuration={2000}
-                message="Copied to clipboard"
-            />
+            >
+                <Alert severity="success">Copied to clipboard</Alert>
+            </Snackbar>
 
             <Snackbar
                 open={errorSnackbar}

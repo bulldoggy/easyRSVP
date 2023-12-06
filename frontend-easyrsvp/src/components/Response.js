@@ -35,7 +35,7 @@ export default function Home() {
         copy(guestLink);
     };
 
-    const submitForm = (e)=>{
+    const submitResponse = (e) => {
         if(guestName === '' || guestMobile === '' || guestDecision === '') {
             setNameTouched(true);
             setMobileTouched(true);
@@ -64,12 +64,16 @@ export default function Home() {
         .then(result => {
             setInvite(result);
             setInviteCode(result.inviteCode);
+            //logging to view
+            console.log(result);
         })
     }, [])
 
     useEffect(() => {
         if(response != null) {
             setGuestLink(`localhost:3000/rsvp/guest?code=`+response.guestCode);
+            //logging to view
+            console.log(response);
         }
     }, [response]);
 
@@ -89,31 +93,40 @@ export default function Home() {
                 >
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField id="outlined-basic" variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={invite.ownerName}
                     />
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField id="outlined-basic" variant="standard" multiline fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
                         }}
+                        InputProps={{
+                            disableUnderline: true
+                        }}
                         value={invite.eventDetails}
                     />
 
                     <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                    <TextField id="outlined-basic" variant="outlined" fullWidth disabled 
+                    <TextField id="outlined-basic" variant="standard" fullWidth disabled 
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "#000000",
                             },
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         value={invite.eventAddress}
                     />
@@ -134,16 +147,22 @@ export default function Home() {
                             value={dayjs(invite.eventDate)}  
                             InputProps={{
                                 disabled: true,
-                                readOnly: true
+                                readOnly: true,
+                            
                             }}
+                            slotProps={{ textField: { variant: 'standard' } }}
                             ampm={true}
                             />
                         </LocalizationProvider>
-                        <TextField id="outlined-basic" variant="outlined" fullWidth disabled style={{width: "70%", marginRight: "-15px"}}
+
+                        <TextField id="outlined-basic" variant="standard" fullWidth disabled style={{width: "70%", marginRight: "-15px"}}
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
                                 },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
                             }}
                             value={invite.timezone}
                         />
@@ -156,64 +175,83 @@ export default function Home() {
                 <h2> RSVP below now! </h2>
 
                 <Box
-                component="form"
-                sx={{
-                    '& > :not(style)': { m: 1 },
-                }}
-                autoComplete="off"
+                    component="form"
+                    sx={{
+                        '& > :not(style)': { m: 1 },
+                    }}
+                    autoComplete="off"
                 >
-                <TextField id="outlined-basic" label="Guest Name" fullWidth required 
-                    value={guestName}
-                    onChange={(e)=> {
-                        setGuestName(e.target.value) 
-                        setNameTouched(true);
-                    }}
-                    error={nameTouched && guestName.length === 0}
-                    InputProps={{
-                        readOnly: submitted
-                    }}
-                />
-                <TextField id="outlined-basic" label="Mobile Number" fullWidth required 
-                    value={guestMobile}
-                    onChange={(e)=> {
-                        setGuestMobile(e.target.value) 
-                        setMobileTouched(true);
-                    }}
-                    error={mobileTouched && guestMobile.length === 0}
-                    InputProps={{
-                        readOnly: submitted
-                    }}
-                />
-
-                <FormControl>
-                    <FormLabel id="radio-buttons-group-label">Attendance *</FormLabel>
-                    <RadioGroup
-                        row
-                        aria-labelledby="demo-row-radio-buttons-group-label"
-                        name="row-radio-buttons-group"
+                    <TextField id="outlined-basic" label="Name" fullWidth required 
+                        value={guestName}
                         onChange={(e)=> {
-                            setGuestDecision(e.target.value) 
-                            setDecisionTouched(true);
+                            setGuestName(e.target.value) 
+                            setNameTouched(true);
                         }}
-                        error={decisionTouched && guestDecision.length === 0}
-                    >
-                        <FormControlLabel value="YES" control={<Radio />} label="Yes" />
-                        <FormControlLabel value="NO" control={<Radio />} label="No" />
-                        <FormControlLabel value="UNSURE" control={<Radio />} label="Unsure" />
-                    </RadioGroup>
-                </FormControl>
+                        error={nameTouched && guestName.length === 0}
+                        InputProps={{
+                            readOnly: submitted
+                        }}
+                    />
+                    <TextField id="outlined-basic" label="Mobile Number" fullWidth required 
+                        value={guestMobile}
+                        onChange={(e)=> {
+                            setGuestMobile(e.target.value) 
+                            setMobileTouched(true);
+                        }}
+                        error={mobileTouched && guestMobile.length === 0}
+                        InputProps={{
+                            readOnly: submitted
+                        }}
+                    />
 
-                <TextField id="outlined-multiline-static" label="Additional Notes" multiline fullWidth rows={3}
-                value={guestNotes}
-                onChange={(e)=> {
-                    setGuestNotes(e.target.value) 
-                }}
-                InputProps={{
-                    readOnly: submitted
-                }}
-                />
+                    {submitted == false &&
+                    <FormControl >
+                        <FormLabel id="radio-buttons-group-label">Attendance *</FormLabel>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                            onChange={(e)=> {
+                                setGuestDecision(e.target.value) 
+                                setDecisionTouched(true);
+                            }}
+                            value={guestDecision}
+                            //error={decisionTouched && guestDecision.length === 0}
+                        >
+                            <FormControlLabel value="YES" control={<Radio />} label="Yes" />
+                            <FormControlLabel value="NO" control={<Radio />} label="No" />
+                            <FormControlLabel value="UNSURE" control={<Radio />} label="Unsure" />
+                        </RadioGroup>
+                    </FormControl>
+                    }
 
-                {response == null && <Button variant="contained" onClick={submitForm} color="success">Submit</Button>}
+                    {submitted == true &&
+                    <FormControl >
+                        <FormLabel id="radio-buttons-group-label">Attendance *</FormLabel>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                            value={guestDecision}
+                        >
+                            <FormControlLabel value="YES" control={<Radio />} label="Yes" />
+                            <FormControlLabel value="NO" control={<Radio />} label="No" />
+                            <FormControlLabel value="UNSURE" control={<Radio />} label="Unsure" />
+                        </RadioGroup>
+                    </FormControl>
+                    }
+
+                    <TextField id="outlined-multiline-static" label="Additional Notes" multiline fullWidth rows={3}
+                    value={guestNotes}
+                    onChange={(e)=> {
+                        setGuestNotes(e.target.value) 
+                    }}
+                    InputProps={{
+                        readOnly: submitted
+                    }}
+                    />
+
+                    {response == null && <Button variant="contained" onClick={submitResponse} color="success">Submit</Button>}
                 </Box>
             </Paper>
 
@@ -241,8 +279,9 @@ export default function Home() {
                 open={copySnackbar}
                 onClose={() => setCopySnackbar(false)}
                 autoHideDuration={2000}
-                message="Copied to clipboard"
-            />
+            >
+                <Alert severity="success">Copied to clipboard</Alert>
+            </Snackbar>
 
             <Snackbar
                 open={errorSnackbar}
