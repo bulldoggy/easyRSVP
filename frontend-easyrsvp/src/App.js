@@ -12,15 +12,15 @@ import {
 } from "react-router-dom";
 
 //Add footer for users to add comments and plaything with redis
-//add page for host/response/guest code that dont exist (deleted codes)
 //beautify words and colours () change bg color of app to pale green/yellow
-//show snackbar if internal server error or bad request (ex. details too long)
 //see if theres error prompt for radio group
+//standardize all words (capitalize, etc)
 
 function App() {
   return (
     <div className="App">
       <Appbar/>
+
       <Router>
         <Routes>
           <Route exact path="/" element={<Home />} />
@@ -29,6 +29,7 @@ function App() {
           <Route exact path="/rsvp/guest" element={<Guest />} />
         </Routes>
       </Router>
+
     </div>
     
   );

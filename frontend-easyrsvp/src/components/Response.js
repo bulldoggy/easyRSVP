@@ -7,6 +7,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState, useEffect } from 'react';
 import copy from "copy-to-clipboard";
 import dayjs from "dayjs";
+import Error from './Error';
 
 export default function Home() {
     const paperStyle = {padding:"10px 20px", width: 800, margin:"20px auto"};
@@ -28,6 +29,7 @@ export default function Home() {
     
     const [response, setResponse] = useState(null);
     const [guestLink, setGuestLink] = useState('');
+    const [codeError, setCodeError] = useState(null);
 
     const copyGuestLink = () => {
         setCopySnackbar(true);
@@ -49,7 +51,7 @@ export default function Home() {
                 headers:{"Content-Type":"application/json"},
                 body:JSON.stringify(responseCreateDTO)
             })
-            .then(res => res.json())
+            .then(response => response.json())
             .then(result => {
                 setResponse(result);
             })
@@ -58,13 +60,20 @@ export default function Home() {
 
     useEffect(()=>{
         fetch("http://localhost:8080" + window.location.pathname + window.location.search)
-        .then(res => res.json())
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Something went wrong');
+        })
         .then(result => {
             setInvite(result);
             setInviteCode(result.inviteCode);
-            //logging to view
-            console.log(result);
+            setCodeError(false);
         })
+        .catch((error) => {
+            setCodeError(true);
+        });
     }, [])
 
     useEffect(() => {
@@ -77,79 +86,26 @@ export default function Home() {
 
     return (
         <Container style={{paddingTop:"60px"}}>
+            {codeError == true && //code is invalid
+                <Error 
+                    message={"Invalid link provided, contact your host to check if the invite link is still active"}
+                />
+            } 
 
-            {//if invite fetched from server
-            invite != null &&
-            <Paper elevation={3} style={paperStyle}>
-                <h2> You have been invited! </h2>
-                <Box
-                    component="form"
-                    sx={{
-                        '& > :not(style)': { m: 1 },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
-
-                    <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                    <TextField variant="standard" fullWidth disabled 
+            {codeError == false && invite != null && //if invite fetched from server
+                <Paper elevation={3} style={paperStyle}>
+                    <h2> You have been invited! </h2>
+                    <Box
+                        component="form"
                         sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
+                            '& > :not(style)': { m: 1 },
                         }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={invite.ownerName}
-                    />
+                        noValidate
+                        autoComplete="off"
+                    >
 
-                    <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                    <TextField variant="standard" multiline fullWidth disabled 
-                        sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
-                        }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={invite.eventDetails}
-                    />
-
-                    <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                    <TextField variant="standard" fullWidth disabled 
-                        sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
-                        }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={invite.eventAddress}
-                    />
-
-
-                    <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
-                        <h4>Date:</h4>
-                    </div>
-
-                    <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} >
-                            <DateTimePicker fullWidth disableOpenPicker readOnly
-                            format='DD/MM/YYYY hh:mm A'
-                            sx={{
-                                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                marginTop: "-13px",
-                                marginLeft: "-15px"
-                            }}
-                            value={dayjs(invite.eventDate)}  
-                            ampm={true}
-                            />
-                        </LocalizationProvider>
-
-                        <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
+                        <TextField variant="standard" fullWidth disabled 
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -158,160 +114,215 @@ export default function Home() {
                             InputProps={{
                                 disableUnderline: true
                             }}
-                            value={invite.timezone}
+                            value={invite.ownerName}
                         />
-                    </div>
-                </Box>
-            </Paper>
-            }
 
-            {//if response not created yet
-            response == null && 
-            <Paper elevation={3} style={paperStyle}>
-                <h2> RSVP below now! </h2>
-
-                <Box
-                    component="form"
-                    sx={{
-                        '& > :not(style)': { m: 1 },
-                    }}
-                    autoComplete="off"
-                >
-                    <TextField label="Name" fullWidth required 
-                        value={guestName}
-                        onChange={(e)=> {
-                            setGuestName(e.target.value) 
-                            setNameTouched(true);
-                        }}
-                        error={nameTouched && guestName.length === 0}
-                    />
-                    <TextField label="Mobile Number" fullWidth required 
-                        value={guestMobile}
-                        onChange={(e)=> {
-                            setGuestMobile(e.target.value) 
-                            setMobileTouched(true);
-                        }}
-                        error={mobileTouched && guestMobile.length === 0}
-                    />
-
-                    <FormControl >
-                        <FormLabel>Attendance *</FormLabel>
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                            onChange={(e)=> {
-                                setGuestDecision(e.target.value) 
-                                setDecisionTouched(true);
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled 
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
                             }}
-                            value={guestDecision}
-                            //error={decisionTouched && guestDecision.length === 0}
-                        >
-                            <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                            <FormControlLabel value="No" control={<Radio />} label="No" />
-                            <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
-                        </RadioGroup>
-                    </FormControl>
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={invite.eventDetails}
+                        />
 
-                    <TextField label="Additional Notes" multiline fullWidth rows={3}
-                        value={guestNotes}
-                        onChange={(e)=> {
-                            setGuestNotes(e.target.value) 
-                        }}
-                    />
+                        <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
+                        <TextField variant="standard" fullWidth disabled 
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={invite.eventAddress}
+                        />
 
-                    <Button variant="contained" onClick={submitResponse} color="success">Submit</Button>
-                </Box>
-            </Paper>
+
+                        <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                            <h4>Date:</h4>
+                        </div>
+
+                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} >
+                                <DateTimePicker fullWidth disableOpenPicker readOnly
+                                format='DD/MM/YYYY hh:mm A'
+                                sx={{
+                                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    marginTop: "-13px",
+                                    marginLeft: "-15px"
+                                }}
+                                value={dayjs(invite.eventDate)}  
+                                ampm={true}
+                                />
+                            </LocalizationProvider>
+
+                            <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={invite.timezone}
+                            />
+                        </div>
+                    </Box>
+                </Paper>
             }
 
-            {//if response already created
-            response != null && 
-            <>
-            <Paper elevation={3} style={paperStyle}>
-                <h2> Your RSVP has been sent! </h2>
+            {codeError == false && response == null && //if response not created yet
+                <Paper elevation={3} style={paperStyle}>
+                    <h2> RSVP below now! </h2>
 
-                <Box
-                    component="form"
-                    sx={{
-                        '& > :not(style)': { m: 1 },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
-
-                    <h4 style={{float: "left", marginBottom: "-5px"}}>Guest:</h4>
-                    <TextField variant="standard" fullWidth disabled 
+                    <Box
+                        component="form"
                         sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
+                            '& > :not(style)': { m: 1 },
                         }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={guestName}
-                    />
+                        autoComplete="off"
+                    >
+                        <TextField label="Name" fullWidth required 
+                            value={guestName}
+                            onChange={(e)=> {
+                                setGuestName(e.target.value) 
+                                setNameTouched(true);
+                            }}
+                            error={nameTouched && guestName.length === 0}
+                        />
+                        <TextField label="Mobile Number" fullWidth required 
+                            value={guestMobile}
+                            onChange={(e)=> {
+                                setGuestMobile(e.target.value) 
+                                setMobileTouched(true);
+                            }}
+                            error={mobileTouched && guestMobile.length === 0}
+                        />
 
-                    <h4 style={{float: "left", marginBottom: "-5px"}}>Mobile:</h4>
-                    <TextField variant="standard" fullWidth disabled 
-                        sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
-                        }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={guestMobile}
-                    />
+                        <FormControl >
+                            <FormLabel>Attendance *</FormLabel>
+                            <RadioGroup
+                                row
+                                aria-labelledby="demo-row-radio-buttons-group-label"
+                                name="row-radio-buttons-group"
+                                onChange={(e)=> {
+                                    setGuestDecision(e.target.value) 
+                                    setDecisionTouched(true);
+                                }}
+                                value={guestDecision}
+                                //error={decisionTouched && guestDecision.length === 0}
+                            >
+                                <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                                <FormControlLabel value="No" control={<Radio />} label="No" />
+                                <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
+                            </RadioGroup>
+                        </FormControl>
 
-                    <h4 style={{float: "left", marginBottom: "-5px"}}> Attendance:</h4>
-                    <TextField variant="standard" multiline fullWidth disabled
-                        sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
-                        }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={guestDecision}
-                    />
+                        <TextField label="Additional Notes" multiline fullWidth rows={3}
+                            value={guestNotes}
+                            onChange={(e)=> {
+                                setGuestNotes(e.target.value) 
+                            }}
+                        />
 
-                    <h4 style={{float: "left", marginBottom: "-5px"}}> Additional Notes:</h4>
-                    <TextField variant="standard" multiline fullWidth disabled
-                        sx={{
-                            "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "#000000",
-                            },
-                        }}
-                        InputProps={{
-                            disableUnderline: true
-                        }}
-                        value={guestNotes}
-                    />
-                </Box>
-            </Paper>
+                        <Button variant="contained" onClick={submitResponse} color="success">Submit</Button>
+                    </Box>
+                </Paper>
+            }
 
-            <Paper elevation={3} style={paperStyle}>
-                <h2> Save the link below! </h2>
+            {codeError == false && response != null && //if response already created 
+                <>
+                    <Paper elevation={3} style={paperStyle}>
+                        <h2> Your RSVP has been sent! </h2>
 
-                <h4> Use this personalized link to view and edit your response in future</h4>
-                <div style={linkDivStyle}>
-                    <TextField fullWidth 
-                        value={guestLink}
-                        InputProps={{
-                            readOnly: true
-                        }}
-                        style={{marginRight:"20px"}}
-                    />
-                    <Button onClick={copyGuestLink} variant="contained" size="small">COPY</Button>
-                </div>
+                        <Box
+                            component="form"
+                            sx={{
+                                '& > :not(style)': { m: 1 },
+                            }}
+                            noValidate
+                            autoComplete="off"
+                        >
 
-                <br/>
-            </Paper>
-            </>
+                            <h4 style={{float: "left", marginBottom: "-5px"}}>Guest:</h4>
+                            <TextField variant="standard" fullWidth disabled 
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={guestName}
+                            />
+
+                            <h4 style={{float: "left", marginBottom: "-5px"}}>Mobile:</h4>
+                            <TextField variant="standard" fullWidth disabled 
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={guestMobile}
+                            />
+
+                            <h4 style={{float: "left", marginBottom: "-5px"}}> Attendance:</h4>
+                            <TextField variant="standard" multiline fullWidth disabled
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={guestDecision}
+                            />
+
+                            <h4 style={{float: "left", marginBottom: "-5px"}}> Additional Notes:</h4>
+                            <TextField variant="standard" multiline fullWidth disabled
+                                sx={{
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "#000000",
+                                    },
+                                }}
+                                InputProps={{
+                                    disableUnderline: true
+                                }}
+                                value={guestNotes}
+                            />
+                        </Box>
+                    </Paper>
+
+                    <Paper elevation={3} style={paperStyle}>
+                        <h2> Save the link below! </h2>
+
+                        <h4> Use this personalized link to view and edit your response in future</h4>
+                        <div style={linkDivStyle}>
+                            <TextField fullWidth 
+                                value={guestLink}
+                                InputProps={{
+                                    readOnly: true
+                                }}
+                                style={{marginRight:"20px"}}
+                            />
+                            <Button onClick={copyGuestLink} variant="contained" size="small">COPY</Button>
+                        </div>
+
+                        <br/>
+                    </Paper>
+                </>
             }
 
             <Snackbar

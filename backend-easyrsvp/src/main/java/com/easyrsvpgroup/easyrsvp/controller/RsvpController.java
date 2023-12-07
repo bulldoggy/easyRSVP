@@ -1,16 +1,15 @@
 package com.easyrsvpgroup.easyrsvp.controller;
 
-import com.easyrsvpgroup.easyrsvp.dto.InviteCreateDTO;
-import com.easyrsvpgroup.easyrsvp.dto.OutgoingResponseDTO;
-import com.easyrsvpgroup.easyrsvp.dto.ResponseCreateDTO;
-import com.easyrsvpgroup.easyrsvp.dto.ResponseEditDTO;
+import com.easyrsvpgroup.easyrsvp.dto.*;
 import com.easyrsvpgroup.easyrsvp.model.Invite;
 import com.easyrsvpgroup.easyrsvp.model.Response;
 import com.easyrsvpgroup.easyrsvp.service.InviteService;
 import com.easyrsvpgroup.easyrsvp.service.ResponseService;
 import com.easyrsvpgroup.easyrsvp.util.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,13 +44,13 @@ public class RsvpController {
     }
 
     @PutMapping("/editInvite")
-    public Invite editInvite(@RequestBody Invite invite) {
-        Invite i = inviteService.findByInviteCode(invite.getInviteCode());
-        i.setOwnerName(invite.getOwnerName());
-        i.setEventDetails(invite.getEventDetails());
-        i.setEventAddress(invite.getEventAddress());
-        i.setEventDate(invite.getEventDate());
-        i.setTimezone(invite.getTimezone());
+    public Invite editInvite(@RequestBody InviteEditDTO inviteEditDTO) {
+        Invite i = inviteService.findByInviteCode(inviteEditDTO.getInviteCode());
+        i.setOwnerName(inviteEditDTO.getOwnerName());
+        i.setEventDetails(inviteEditDTO.getEventDetails());
+        i.setEventAddress(inviteEditDTO.getEventAddress());
+        i.setEventDate(inviteEditDTO.getEventDate());
+        i.setTimezone(inviteEditDTO.getTimezone());
         return inviteService.updateInvite(i);
     }
 
@@ -63,12 +62,24 @@ public class RsvpController {
 
     @GetMapping("/host")
     public Invite host(@RequestParam("code") String inviteCode) {
-        return inviteService.findByInviteCode(inviteCode);
+        Invite invite = inviteService.findByInviteCode(inviteCode);
+
+        if(invite == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invite for this code does not exist");
+        }
+
+        return invite;
     }
 
     @GetMapping("/response")
     public Invite response(@RequestParam("code") String responseCode) {
-        return inviteService.findByResponseCode(responseCode);
+        Invite invite =  inviteService.findByResponseCode(responseCode);
+
+        if(invite == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invite for this code does not exist");
+        }
+
+        return invite;
     }
 
     @PostMapping("/createResponse")
@@ -100,11 +111,16 @@ public class RsvpController {
     @GetMapping("/guest")
     public OutgoingResponseDTO guest(@RequestParam("code") String guestCode) {
         Response response = responseService.findByGuestCode(guestCode);
+
+        if(response == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Response for this code does not exist");
+        }
+
         return new OutgoingResponseDTO(response, response.getInvite());
     }
 
     @PutMapping("/editResponse")
-    public Response editInvite(@RequestBody ResponseEditDTO responseEditDTO) {
+    public Response editResponse(@RequestBody ResponseEditDTO responseEditDTO) {
         Response r = responseService.findByGuestCode(responseEditDTO.getGuestCode());
         r.setGuestName(responseEditDTO.getGuestName());
         r.setGuestMobile(responseEditDTO.getGuestMobile());
