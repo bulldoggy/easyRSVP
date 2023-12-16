@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import Error from './Error';
 
 export default function Home() {
-    const paperStyle = {padding:"10px 20px", width: 800, margin:"20px auto"};
+    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
     const modalStyle = {
         position: 'absolute',
         top: '50%',
@@ -21,8 +21,8 @@ export default function Home() {
         //boxShadow: 24,
         p: 4,
         borderRadius: '6px',
-      };
-    
+    };
+
     const [guestName, setGuestName] = useState('');
     const [guestMobile, setGuestMobile] = useState('');
     const [guestDecision, setGuestDecision] = useState('');
@@ -39,7 +39,7 @@ export default function Home() {
 
     const [errorSnackbar, setErrorSnackbar] = useState(false)
     const [editSuccessSnackbar, setEditSuccessSnackbar] = useState(false)
-    
+
     const [response, setResponse] = useState(null);
     const [invite, setInvite] = useState(null);
 
@@ -51,26 +51,26 @@ export default function Home() {
     const [modalOpen, setModalOpen] = useState(false);
 
     const submitEditForm = (e) => {
-        if(guestName === '' || guestMobile === '' || guestDecision === '') {
+        if (guestName === '' || guestMobile === '' || guestDecision === '') {
             setNameTouched(true);
             setMobileTouched(true);
             setDecisionTouched(true);
             setErrorSnackbar(true);
         } else {
             e.preventDefault();
-            const responseEditDTO = {guestCode, guestName, guestMobile, guestDecision, guestNotes};
-            
+            const responseEditDTO = { guestCode, guestName, guestMobile, guestDecision, guestNotes };
+
             fetch("http://localhost:8080/rsvp/editResponse", {
-                method:"PUT",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify(responseEditDTO)
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(responseEditDTO)
             })
-            .then(response => response.json())
-            .then(result => {
-                setResponse(result);
-                setEditSuccessSnackbar(true);
-                setEditing(false);
-            })
+                .then(response => response.json())
+                .then(result => {
+                    setResponse(result);
+                    setEditSuccessSnackbar(true);
+                    setEditing(false);
+                })
         }
     }
 
@@ -84,38 +84,38 @@ export default function Home() {
 
     const submitDeleteForm = (e) => {
         e.preventDefault();
-            
+
         fetch("http://localhost:8080/rsvp/deleteResponse?code=" + response.guestCode, {
-            method:"DELETE",
-            headers:{"Content-Type":"application/json"},
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
         })
-        .then((response) => {
-            setRsvpDeleted(true);
-            setModalOpen(false);
-        })
+            .then((response) => {
+                setRsvpDeleted(true);
+                setModalOpen(false);
+            })
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch("http://localhost:8080" + window.location.pathname + window.location.search)
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Something went wrong');
-        })
-        .then(result => {
-            setResponse(result.response);
-            setInvite(result.invite);
-            setCodeError(false);
-            console.log(result);
-        })
-        .catch((error) => {
-            setCodeError(true);
-        });
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Something went wrong');
+            })
+            .then(result => {
+                setResponse(result.response);
+                setInvite(result.invite);
+                setCodeError(false);
+                console.log(result);
+            })
+            .catch((error) => {
+                setCodeError(true);
+            });
     }, [])
 
-    useEffect(()=>{
-        if(response != null) {
+    useEffect(() => {
+        if (response != null) {
             setGuestName(response.guestName);
             setGuestMobile(response.guestMobile);
             setGuestDecision(response.guestDecision);
@@ -129,20 +129,20 @@ export default function Home() {
     }, [response])
 
     return (
-        <Container style={{paddingTop:"60px"}}>
-            {rsvpDeleted == true && //code is invalid
-                <Error 
+        <Container style={{ paddingTop: "60px" }}>
+            {rsvpDeleted === true && //code is invalid
+                <Error
                     message={"Your RSVP has been deleted"}
                 />
-            } 
+            }
 
-            {codeError == true && rsvpDeleted == false && //code is invalid
-                <Error 
+            {codeError === true && rsvpDeleted === false && //code is invalid
+                <Error
                     message={"Invalid link provided, contact your host to check if the invite link is still active"}
                 />
-            } 
+            }
 
-            {codeError == false && rsvpDeleted == false && invite != null &&//if invite fetched from server
+            {codeError === false && rsvpDeleted === false && invite != null &&//if invite fetched from server
                 <Paper elevation={3} style={paperStyle}>
                     <h2> You have been invited! </h2>
                     <Box
@@ -154,8 +154,8 @@ export default function Home() {
                         autoComplete="off"
                     >
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -167,8 +167,8 @@ export default function Home() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                        <TextField variant="standard" multiline fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -180,8 +180,8 @@ export default function Home() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -194,25 +194,25 @@ export default function Home() {
                         />
 
 
-                        <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
                             <h4>Date:</h4>
                         </div>
 
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
                                 <DateTimePicker fullWidth disableOpenPicker readOnly
-                                format='DD/MM/YYYY hh:mm A'
-                                sx={{
-                                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                    marginTop: "-13px",
-                                    marginLeft: "-15px"
-                                }}
-                                value={dayjs(invite.eventDate)}  
-                                ampm={true}
+                                    format='DD/MM/YYYY hh:mm A'
+                                    sx={{
+                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                        marginTop: "-13px",
+                                        marginLeft: "-15px"
+                                    }}
+                                    value={dayjs(invite.eventDate)}
+                                    ampm={true}
                                 />
                             </LocalizationProvider>
 
-                            <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
+                            <TextField variant="standard" fullWidth disabled style={{ width: "85%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -228,7 +228,7 @@ export default function Home() {
                 </Paper>
             }
 
-            {codeError == false && rsvpDeleted == false && editing == false && response != null && //if response fetched from server and not editing
+            {codeError === false && rsvpDeleted === false && editing === false && response != null && //if response fetched from server and not editing
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Your personal RSVP </h2>
                     <Box
@@ -240,8 +240,8 @@ export default function Home() {
                         autoComplete="off"
                     >
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Guest:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Guest:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -253,8 +253,8 @@ export default function Home() {
                             value={guestName}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Mobile:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Mobile:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -266,8 +266,8 @@ export default function Home() {
                             value={guestMobile}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}> Attendance:</h4>
-                        <TextField variant="standard" multiline fullWidth disabled
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}> Attendance:</h4>
+                        <TextField variant="standard" fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -279,7 +279,7 @@ export default function Home() {
                             value={guestDecision}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}> Additional Notes:</h4>
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}> Additional Notes:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -293,36 +293,36 @@ export default function Home() {
                         />
                     </Box>
 
-                    <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px"}}>
-                        <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{marginRight: "-140px"}}>Edit</Button>
-                        <Button variant="contained"  onClick={() => setModalOpen(true)}color="error" style={{marginLeft: "-140px"}}>Delete</Button>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px" }}>
+                        <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{ marginRight: "-140px" }}>Edit</Button>
+                        <Button variant="contained" onClick={() => setModalOpen(true)} color="error" style={{ marginLeft: "-140px" }}>Delete</Button>
                     </div>
                 </Paper>
             }
 
-            {codeError == false && rsvpDeleted == false && editing == true && response != null && //if response fetched from server and is editing
+            {codeError === false && rsvpDeleted === false && editing === true && response != null && //if response fetched from server and is editing
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Edit RSVP </h2>
 
                     <Box
-                    component="form"
-                    sx={{
-                        '& > :not(style)': { m: 1 },
-                    }}
-                    autoComplete="off"
+                        component="form"
+                        sx={{
+                            '& > :not(style)': { m: 1 },
+                        }}
+                        autoComplete="off"
                     >
-                        <TextField label="Guest Name" fullWidth required 
+                        <TextField label="Guest Name" fullWidth required
                             value={guestName}
-                            onChange={(e)=> {
-                                setGuestName(e.target.value) 
+                            onChange={(e) => {
+                                setGuestName(e.target.value)
                                 setNameTouched(true);
                             }}
                             error={nameTouched && guestName.length === 0}
                         />
-                        <TextField label="Mobile Number" fullWidth required 
+                        <TextField label="Mobile Number" fullWidth required
                             value={guestMobile}
-                            onChange={(e)=> {
-                                setGuestMobile(e.target.value) 
+                            onChange={(e) => {
+                                setGuestMobile(e.target.value)
                                 setMobileTouched(true);
                             }}
                             error={mobileTouched && guestMobile.length === 0}
@@ -334,8 +334,8 @@ export default function Home() {
                                 row
                                 aria-labelledby="demo-row-radio-buttons-group-label"
                                 name="row-radio-buttons-group"
-                                onChange={(e)=> {
-                                    setGuestDecision(e.target.value) 
+                                onChange={(e) => {
+                                    setGuestDecision(e.target.value)
                                     setDecisionTouched(true);
                                 }}
                                 value={guestDecision}
@@ -348,14 +348,14 @@ export default function Home() {
 
                         <TextField label="Additional Notes" multiline fullWidth
                             value={guestNotes}
-                            onChange={(e)=> {
-                                setGuestNotes(e.target.value) 
+                            onChange={(e) => {
+                                setGuestNotes(e.target.value)
                             }}
                         />
-                        
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "15px"}}>
-                            <Button variant="contained" onClick={cancelClicked} color="warning" style={{marginRight: "-140px"}}>Cancel</Button>
-                            <Button variant="contained" onClick={submitEditForm} color="success" style={{marginLeft: "-140px"}}>Submit</Button>
+
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "15px" }}>
+                            <Button variant="contained" onClick={cancelClicked} color="warning" style={{ marginRight: "-140px" }}>Cancel</Button>
+                            <Button variant="contained" onClick={submitEditForm} color="success" style={{ marginLeft: "-140px" }}>Submit</Button>
                         </div>
                     </Box>
                 </Paper>
@@ -384,13 +384,13 @@ export default function Home() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={modalStyle}>
-                    <div style={{display: "flex", justifyContent: "space-evenly", marginTop: "15px"}}>   
+                    <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "15px" }}>
                         <h3> Confirm deletion of your RSVP? </h3>
                     </div>
 
-                    <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px"}}>
-                        <Button variant="contained" onClick={() => setModalOpen(false)} color="warning" style={{marginRight: "-40px"}}>Cancel</Button>
-                        <Button variant="contained" onClick={submitDeleteForm} color="error" style={{marginLeft: "-40px"}}>Delete</Button>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px" }}>
+                        <Button variant="contained" onClick={() => setModalOpen(false)} color="warning" style={{ marginRight: "-40px" }}>Cancel</Button>
+                        <Button variant="contained" onClick={submitDeleteForm} color="error" style={{ marginLeft: "-40px" }}>Delete</Button>
                     </div>
                 </Box>
             </Modal>

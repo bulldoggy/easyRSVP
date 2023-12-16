@@ -15,6 +15,7 @@ import {
 //beautify words and colours () change bg color of app to pale green/yellow
 //see if theres error prompt for radio group
 //standardize all words (capitalize, etc)
+//set char limit for name/phonenumber
 
 function App() {
   return (

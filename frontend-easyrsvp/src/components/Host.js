@@ -1,28 +1,29 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import { Button, Container, Paper, Snackbar, Alert, Radio, RadioGroup, FormControlLabel, FormControl, Modal, Typography, FormLabel } from '@mui/material';
+import { Button, Container, Paper, Snackbar, Alert, Modal, Box, TextField, TableCell, Table, TableHead, TableRow, TableSortLabel, TableContainer, TableBody } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState, useEffect } from 'react';
 import dayjs from "dayjs";
 import Error from './Error';
+import DeleteIcon from '@mui/icons-material/Delete';
+import copy from "copy-to-clipboard";
 
 export default function Host() {
-    const paperStyle = {padding:"10px 20px", width: 800, margin:"20px auto"};
+    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
     const modalStyle = {
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 400,
+        width: 500,
         bgcolor: 'background.paper',
         border: '1px solid #000',
         //boxShadow: 24,
         p: 4,
         borderRadius: '6px',
-      };
-    
+    };
+    const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px" };
+
     const [inviteCode, setInviteCode] = useState('');
 
     const [ownerName, setOwnerName] = useState('');
@@ -43,45 +44,99 @@ export default function Host() {
 
     const [errorSnackbar, setErrorSnackbar] = useState(false)
     const [editSuccessSnackbar, setEditSuccessSnackbar] = useState(false)
-    
+
     const [invite, setInvite] = useState(null);
+    const [responses, setResponses] = useState([]);
 
     const [editing, setEditing] = useState(false);
     const [codeError, setCodeError] = useState(null);
     const [inviteDeleted, setInviteDeleted] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [notesModalOpen, setNotesModalOpen] = useState(false);
+    const [deleteRsvpModalOpen, setDeleteRsvpModalOpen] = useState(false);
+
+    const [orderDirection, setOrderDirection] = useState('asc');
+    const [valueToOrderBy, setValueToOrderBy] = useState('guestName');
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(1);
+
+    const [notesToView, setNotesToView] = useState('');
+    const [rsvpCodeToDelete, setRsvpCodeToDelete] = useState('');
+    const [responseLink, setResponseLink] = useState('');
+    const [copySnackbar, setCopySnackbar] = useState(false)
+    const [deleteRsvpSnackbar, setDeleteRsvpSnackbar] = useState(false)
 
     let timezone = "Local Time";
 
+    const copyResponseLink = () => {
+        setCopySnackbar(true);
+        copy(responseLink);
+    };
+
+    const handleRequestSort = (property) => (event) => {
+        const isAscending = (valueToOrderBy === property && orderDirection === 'asc');
+        setValueToOrderBy(property);
+        setOrderDirection(isAscending ? 'desc' : 'asc');
+    }
+
+    const sortedRowInformation = (rowArray, comparator) => {
+        const stabilizedRowArray = rowArray.map((e1, index) => [e1, index]);
+        stabilizedRowArray.sort((a, b) => {
+            const order = comparator(a[0], b[0])
+            if (order !== 0) return order;
+            return a[1] - b[1];
+        })
+
+        return stabilizedRowArray.map((e1) => e1[0]);
+    }
+
+    function getComparator(order, orderBy) {
+        return order === 'desc'
+            ? (a, b) => descendingComparator(a, b, orderBy)
+            : (a, b) => -descendingComparator(a, b, orderBy)
+    }
+
+    function descendingComparator(a, b, orderBy) {
+        if (b[orderBy] < a[orderBy]) {
+            return -1;
+        }
+
+        if (b[orderBy] > a[orderBy]) {
+            return 1;
+        }
+
+        return 0;
+    }
+
     const submitEditForm = (e) => {
-        if(ownerName === '' || eventDetails === '' || eventAddress === '' || isNaN(Date.parse(eventDate))) {
+        if (ownerName === '' || eventDetails === '' || eventAddress === '' || isNaN(Date.parse(eventDate))) {
             setNameTouched(true);
             setDetailsTouched(true);
             setAddressTouched(true);
             setErrorSnackbar(true);
         } else {
-            if(eventTimezone !== '') {
+            if (eventTimezone !== '') {
                 timezone = eventTimezone;
             } else {
                 setEventTimezone(timezone);
             }
 
             e.preventDefault();
-            const inviteEditDTO = {inviteCode, ownerName, eventDetails, eventAddress, eventDate, timezone};
+            const inviteEditDTO = { inviteCode, ownerName, eventDetails, eventAddress, eventDate, timezone };
             //logging to view inviteCreateDTO
             console.log(inviteEditDTO);
             fetch("http://localhost:8080/rsvp/editInvite", {
-                method:"PUT",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify(inviteEditDTO)
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(inviteEditDTO)
             })
-            .then(res => res.json())
-            .then(result => {
-                setInvite(result);
-                setEditSuccessSnackbar(true);
-                setEditing(false);
-            })
+                .then(res => res.json())
+                .then(result => {
+                    setInvite(result);
+                    setEditSuccessSnackbar(true);
+                    setEditing(false);
+                })
         }
     }
 
@@ -96,37 +151,56 @@ export default function Host() {
 
     const submitDeleteForm = (e) => {
         e.preventDefault();
-            
+
         fetch("http://localhost:8080/rsvp/deleteInvite?code=" + invite.inviteCode, {
-            method:"DELETE",
-            headers:{"Content-Type":"application/json"},
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
         })
-        .then((response) => {
-            setInviteDeleted(true);
-            setModalOpen(false);
-        })
+            .then((response) => {
+                setInviteDeleted(true);
+                setModalOpen(false);
+            })
     }
 
-    useEffect(()=>{
+    const submitDeleteRsvp = (e) => {
+        e.preventDefault();
+
+        fetch("http://localhost:8080/rsvp/deleteResponse?code=" + rsvpCodeToDelete, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+        })
+            .then((response) => {
+                fetchInvite();
+                setDeleteRsvpSnackbar(true);
+                setDeleteRsvpModalOpen(false);
+            })
+    }
+
+    const fetchInvite = () => {
         fetch("http://localhost:8080" + window.location.pathname + window.location.search)
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Something went wrong');
-        })
-        .then(result => {
-            setInvite(result);
-            setCodeError(false);
-            console.log(result);
-        })
-        .catch((error) => {
-            setCodeError(true);
-        });
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Something went wrong');
+            })
+            .then(result => {
+                setInvite(result);
+                setResponses(result.responses);
+                setCodeError(false);
+                console.log(result);
+            })
+            .catch((error) => {
+                setCodeError(true);
+            });
+    }
+
+    useEffect(() => {
+        fetchInvite();
     }, [])
 
     useEffect(() => {
-        if(invite != null) {
+        if (invite != null) {
             setOwnerName(invite.ownerName);
             setEventDetails(invite.eventDetails);
             setEventAddress(invite.eventAddress);
@@ -138,24 +212,25 @@ export default function Host() {
             setSavedEventDate(invite.eventDate);
             setSavedEventTimezone(invite.timezone);
             setInviteCode(invite.inviteCode);
+            setResponseLink(`localhost:3000/rsvp/response?code=` + invite.responseCode);
         }
     }, [invite])
 
     return (
-        <Container style={{paddingTop:"60px"}}>
-            {inviteDeleted == true && //code is invalid
-                <Error 
+        <Container style={{ paddingTop: "60px" }}>
+            {inviteDeleted === true && //code is invalid
+                <Error
                     message={"Your invite has been deleted"}
                 />
-            } 
+            }
 
-            {codeError == true && inviteDeleted == false && //code is invalid
-                <Error 
+            {codeError === true && inviteDeleted === false && //code is invalid
+                <Error
                     message={"Invalid link provided, check if your host link is correct"}
                 />
-            } 
+            }
 
-            {codeError == false && inviteDeleted == false && editing == false && invite != null &&//if invite fetched from server and not editing
+            {codeError === false && inviteDeleted === false && editing === false && invite != null &&//if invite fetched from server and not editing
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Your Invite </h2>
                     <Box
@@ -167,8 +242,8 @@ export default function Host() {
                         autoComplete="off"
                     >
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                        <TextField variant="standard" fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -180,8 +255,8 @@ export default function Host() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                        <TextField variant="standard" multiline fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -193,8 +268,8 @@ export default function Host() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                        <TextField variant="standard" fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -207,25 +282,25 @@ export default function Host() {
                         />
 
 
-                        <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
                             <h4>Date:</h4>
                         </div>
 
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
                                 <DateTimePicker fullWidth disableOpenPicker readOnly
-                                format='DD/MM/YYYY hh:mm A'
-                                sx={{
-                                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                    marginTop: "-13px",
-                                    marginLeft: "-15px"
-                                }}
-                                value={dayjs(invite.eventDate)}  
-                                ampm={true}
+                                    format='DD/MM/YYYY hh:mm A'
+                                    sx={{
+                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                        marginTop: "-13px",
+                                        marginLeft: "-15px"
+                                    }}
+                                    value={dayjs(invite.eventDate)}
+                                    ampm={true}
                                 />
                             </LocalizationProvider>
 
-                            <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
+                            <TextField variant="standard" fullWidth disabled style={{ width: "85%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -238,57 +313,57 @@ export default function Host() {
                             />
                         </div>
 
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px"}}>
-                            <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{marginRight: "-140px"}}>Edit</Button>
-                            <Button variant="contained"  onClick={() => setModalOpen(true)}color="error" style={{marginLeft: "-140px"}}>Delete</Button>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px" }}>
+                            <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{ marginRight: "-140px" }}>Edit</Button>
+                            <Button variant="contained" onClick={() => setModalOpen(true)} color="error" style={{ marginLeft: "-140px" }}>Delete</Button>
                         </div>
                     </Box>
                 </Paper>
             }
 
 
-            {codeError == false && inviteDeleted == false && editing == true && invite != null && //if invite fetched from server and is editing
+            {codeError === false && inviteDeleted === false && editing === true && invite != null && //if invite fetched from server and is editing
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Edit Invite </h2>
 
                     <Box
-                    component="form"
-                    sx={{
-                        '& > :not(style)': { m: 1 },
-                    }}
-                    autoComplete="off"
+                        component="form"
+                        sx={{
+                            '& > :not(style)': { m: 1 },
+                        }}
+                        autoComplete="off"
                     >
-                        <TextField label="Host Name" fullWidth required 
+                        <TextField label="Host Name" fullWidth required
                             value={ownerName}
-                            onChange={(e)=> {
-                                setOwnerName(e.target.value) 
+                            onChange={(e) => {
+                                setOwnerName(e.target.value)
                                 setNameTouched(true);
                             }}
                             error={nameTouched && ownerName.length === 0}
                         />
                         <TextField label="Event Details" multiline fullWidth required rows={3}
                             value={eventDetails}
-                            onChange={(e)=> {
-                                setEventDetails(e.target.value) 
+                            onChange={(e) => {
+                                setEventDetails(e.target.value)
                                 setDetailsTouched(true);
                             }}
                             error={detailsTouched && eventDetails.length === 0}
                         />
                         <TextField label="Event Address" fullWidth required
                             value={eventAddress}
-                            onChange={(e)=> {
+                            onChange={(e) => {
                                 setEventAddress(e.target.value)
                                 setAddressTouched(true);
                             }}
                             error={addressTouched && eventAddress.length === 0}
                         />
-                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
-                                <DateTimePicker label="Event Date" fullWidth 
+                                <DateTimePicker label="Event Date" fullWidth
                                     format='DD/MM/YYYY hh:mm A'
                                     value={dayjs(eventDate)}
-                                    onChange={(e)=> {
-                                        if(eventDate != null) {
+                                    onChange={(e) => {
+                                        if (eventDate != null) {
                                             setEventDate(e.$d);
                                         }
                                     }}
@@ -297,22 +372,134 @@ export default function Host() {
                                             required: true,
                                         },
                                     }}
-                                    ampm={true}                           
+                                    ampm={true}
                                 />
                             </LocalizationProvider>
-                            <TextField label="Time Zone (for intl. events)" style={{width: "67%", marginRight: "-15px"}}
+                            <TextField label="Time Zone (for intl. events)" style={{ width: "67%", marginRight: "-15px" }}
                                 value={eventTimezone}
-                                onChange={(e)=>setEventTimezone(e.target.value)}
+                                onChange={(e) => setEventTimezone(e.target.value)}
                             />
                         </div>
 
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "15px"}}>
-                            <Button variant="contained" onClick={cancelClicked} color="warning" style={{marginRight: "-140px"}}>Cancel</Button>
-                            <Button variant="contained" onClick={submitEditForm} color="success" style={{marginLeft: "-140px"}}>Submit</Button>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "15px" }}>
+                            <Button variant="contained" onClick={cancelClicked} color="warning" style={{ marginRight: "-140px" }}>Cancel</Button>
+                            <Button variant="contained" onClick={submitEditForm} color="success" style={{ marginLeft: "-140px" }}>Submit</Button>
                         </div>
                     </Box>
                 </Paper>
             }
+
+            {responses.length > 0 && inviteDeleted === false &&
+                <Paper elevation={3} style={paperStyle}>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+                        <h2>Guests</h2>
+                    </div>
+
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell key="guestName">
+                                        <TableSortLabel
+                                            active={valueToOrderBy === "guestName"}
+                                            direction={valueToOrderBy === "guestName" ? orderDirection : 'asc'}
+                                            onClick={handleRequestSort("guestName")}
+                                        >
+                                            Name
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell key="guestMobile">
+                                        <TableSortLabel
+                                            active={valueToOrderBy === "guestMobile"}
+                                            direction={valueToOrderBy === "guestMobile" ? orderDirection : 'asc'}
+                                            onClick={handleRequestSort("guestMobile")}
+                                        >
+                                            Mobile
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell key="guestDecision">
+                                        <TableSortLabel
+                                            active={valueToOrderBy === "guestDecision"}
+                                            direction={valueToOrderBy === "guestDecision" ? orderDirection : 'asc'}
+                                            onClick={handleRequestSort("guestDecision")}
+                                        >
+                                            Decision
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell key="guestNotes">
+                                        <TableSortLabel
+                                            active={valueToOrderBy === "guestNotes"}
+                                            direction={valueToOrderBy === "guestNotes" ? orderDirection : 'asc'}
+                                            onClick={handleRequestSort("guestNotes")}
+                                        >
+                                            Notes
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell key="delete">
+
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+
+                            <TableBody>
+                                {sortedRowInformation(responses, getComparator(orderDirection, valueToOrderBy))
+                                    .map((response, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                <TextField variant="standard" multiline fullWidth disabled
+                                                    sx={{
+                                                        "& .MuiInputBase-input.Mui-disabled": {
+                                                            WebkitTextFillColor: "#000000",
+                                                        },
+                                                    }}
+                                                    InputProps={{
+                                                        disableUnderline: true
+                                                    }}
+                                                    value={response.guestName}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {response.guestMobile}
+                                            </TableCell>
+                                            <TableCell>
+                                                {response.guestDecision}
+                                            </TableCell>
+                                            <TableCell>
+                                                {response.guestNotes.length > 0 &&
+                                                    <Button variant="contained" size="small" onClick={() => {
+                                                        setNotesModalOpen(true);
+                                                        setNotesToView(response.guestNotes);
+                                                    }} color="info">View</Button>}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button variant="text" size="small" onClick={() => {
+                                                    setDeleteRsvpModalOpen(true);
+                                                    setRsvpCodeToDelete(response.guestCode);
+                                                }} color="error" style={{ margin: "-20px" }}> <DeleteIcon /> </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>}
+
+            <Paper elevation={3} style={paperStyle}>
+                <h4> Share this link to your guests to let them respond </h4>
+                <div style={linkDivStyle}>
+                    <TextField fullWidth
+                        value={responseLink}
+                        InputProps={{
+                            readOnly: true
+                        }}
+                        style={{ marginRight: "20px" }}
+                    />
+                    <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
+                </div>
+
+                <br />
+            </Paper>
 
             <Snackbar
                 open={editSuccessSnackbar}
@@ -337,16 +524,78 @@ export default function Host() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={modalStyle}>
-                    <div style={{display: "flex", justifyContent: "space-evenly", marginTop: "15px"}}>   
+                    <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "15px" }}>
                         <h3> Confirm deletion of your Invite? </h3>
                     </div>
 
-                    <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px"}}>
-                        <Button variant="contained" onClick={() => setModalOpen(false)} color="warning" style={{marginRight: "-40px"}}>Cancel</Button>
-                        <Button variant="contained" onClick={submitDeleteForm} color="error" style={{marginLeft: "-40px"}}>Delete</Button>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px" }}>
+                        <Button variant="contained" onClick={() => setModalOpen(false)} color="warning" style={{ marginRight: "-40px" }}>Cancel</Button>
+                        <Button variant="contained" onClick={submitDeleteForm} color="error" style={{ marginLeft: "-40px" }}>Delete</Button>
                     </div>
                 </Box>
             </Modal>
+
+            <Modal
+                open={notesModalOpen}
+                onClose={() => setNotesModalOpen(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "15px" }}>
+                        <TextField variant="standard" multiline fullWidth disabled
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "#000000",
+                                },
+                            }}
+                            InputProps={{
+                                disableUnderline: true
+                            }}
+                            value={notesToView}
+                        />
+                    </div>
+
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px" }}>
+                        <Button variant="outlined" onClick={() => setNotesModalOpen(false)} color="info" size="small">Close</Button>
+                    </div>
+                </Box>
+            </Modal>
+
+            <Modal
+                open={deleteRsvpModalOpen}
+                onClose={() => setDeleteRsvpModalOpen(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "15px" }}>
+                        <h3> Confirm deletion of this RSVP ? </h3>
+                    </div>
+
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px" }}>
+                        <Button variant="contained" onClick={() => setDeleteRsvpModalOpen(false)} color="warning" style={{ marginRight: "-40px" }}>Cancel</Button>
+                        <Button variant="contained" onClick={submitDeleteRsvp} color="error" style={{ marginLeft: "-40px" }}>Delete</Button>
+                    </div>
+                </Box>
+            </Modal>
+
+            <Snackbar
+                open={copySnackbar}
+                onClose={() => setCopySnackbar(false)}
+                autoHideDuration={2000}
+            >
+                <Alert severity="success">Copied to clipboard</Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={deleteRsvpSnackbar}
+                onClose={() => setDeleteRsvpSnackbar(false)}
+                autoHideDuration={2000}
+            >
+                <Alert severity="success">RSVP has been deleted</Alert>
+            </Snackbar>
+
         </Container>
     );
 }

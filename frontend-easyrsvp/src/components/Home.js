@@ -9,8 +9,8 @@ import copy from "copy-to-clipboard";
 import dayjs from "dayjs";
 
 export default function Home() {
-    const paperStyle = {padding:"10px 20px", width: 800, margin:"20px auto"};
-    const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px"};
+    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px" };
 
     const [ownerName, setOwnerName] = useState('');
     const [eventDetails, setEventDetails] = useState('');
@@ -24,7 +24,7 @@ export default function Home() {
 
     const [copySnackbar, setCopySnackbar] = useState(false)
     const [errorSnackbar, setErrorSnackbar] = useState(false)
-    
+
     const [invite, setInvite] = useState(null);
     const [inviteLink, setInviteLink] = useState('');
     const [responseLink, setResponseLink] = useState('');
@@ -42,43 +42,43 @@ export default function Home() {
     };
 
     const submitInvite = (e) => {
-        if(ownerName === '' || eventDetails === '' || eventAddress === '' || isNaN(Date.parse(eventDate))) {
+        if (ownerName === '' || eventDetails === '' || eventAddress === '' || isNaN(Date.parse(eventDate))) {
             setNameTouched(true);
             setDetailsTouched(true);
             setAddressTouched(true);
             setErrorSnackbar(true);
         } else {
-            if(eventTimezone !== '') {
+            if (eventTimezone !== '') {
                 timezone = eventTimezone;
             } else {
                 setEventTimezone(timezone);
             }
 
             e.preventDefault();
-            const inviteCreateDTO = {ownerName, eventDetails, eventAddress, eventDate, timezone};
+            const inviteCreateDTO = { ownerName, eventDetails, eventAddress, eventDate, timezone };
             //logging to view inviteCreateDTO
             console.log(inviteCreateDTO);
             fetch("http://localhost:8080/rsvp/createInvite", {
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify(inviteCreateDTO)
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(inviteCreateDTO)
             })
-            .then(res => res.json())
-            .then(result => {
-                setInvite(result);
-            })
+                .then(res => res.json())
+                .then(result => {
+                    setInvite(result);
+                })
         }
     }
 
     useEffect(() => {
-        if(invite != null) {
-            setInviteLink(`localhost:3000/rsvp/host?code=`+invite.inviteCode);
-            setResponseLink(`localhost:3000/rsvp/response?code=`+invite.responseCode);
+        if (invite != null) {
+            setInviteLink(`localhost:3000/rsvp/host?code=` + invite.inviteCode);
+            setResponseLink(`localhost:3000/rsvp/response?code=` + invite.responseCode);
         }
-      }, [invite]);
+    }, [invite]);
 
     return (
-        <Container style={{paddingTop:"60px"}}>
+        <Container style={{ paddingTop: "60px" }}>
             {invite == null && //if invite not created yet
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Create a new Invite </h2>
@@ -90,37 +90,37 @@ export default function Home() {
                         }}
                         autoComplete="off"
                     >
-                        <TextField label="Host Name" fullWidth required 
+                        <TextField label="Host Name" fullWidth required
                             value={ownerName}
-                            onChange={(e)=> {
-                                setOwnerName(e.target.value) 
+                            onChange={(e) => {
+                                setOwnerName(e.target.value)
                                 setNameTouched(true);
                             }}
                             error={nameTouched && ownerName.length === 0}
                         />
                         <TextField label="Event Details" multiline fullWidth required rows={3}
                             value={eventDetails}
-                            onChange={(e)=> {
-                                setEventDetails(e.target.value) 
+                            onChange={(e) => {
+                                setEventDetails(e.target.value)
                                 setDetailsTouched(true);
                             }}
                             error={detailsTouched && eventDetails.length === 0}
                         />
                         <TextField label="Event Address" fullWidth required
                             value={eventAddress}
-                            onChange={(e)=> {
+                            onChange={(e) => {
                                 setEventAddress(e.target.value)
                                 setAddressTouched(true);
                             }}
                             error={addressTouched && eventAddress.length === 0}
                         />
-                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
-                                <DateTimePicker label="Event Date" fullWidth 
+                                <DateTimePicker label="Event Date" fullWidth
                                     format='DD/MM/YYYY hh:mm A'
                                     value={eventDate}
-                                    onChange={(e)=> {
-                                        if(eventDate != null) {
+                                    onChange={(e) => {
+                                        if (eventDate != null) {
                                             setEventDate(e.$d);
                                         }
                                     }}
@@ -132,18 +132,18 @@ export default function Home() {
                                     ampm={true}
                                 />
                             </LocalizationProvider>
-                            <TextField label="Time Zone (for intl. events)" style={{width: "67%", marginRight: "-15px"}}
+                            <TextField label="Time Zone (for intl. events)" style={{ width: "67%", marginRight: "-15px" }}
                                 value={eventTimezone}
-                                onChange={(e)=>setEventTimezone(e.target.value)}
+                                onChange={(e) => setEventTimezone(e.target.value)}
                             />
                         </div>
 
                         <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>
                     </Box>
                 </Paper>
-            } 
+            }
 
-            
+
             {invite != null && //if invite created
                 <>
                     <Paper elevation={3} style={paperStyle}>
@@ -157,8 +157,8 @@ export default function Home() {
                             autoComplete="off"
                         >
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                            <TextField variant="standard" fullWidth disabled 
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                            <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -170,8 +170,8 @@ export default function Home() {
                                 value={invite.ownerName}
                             />
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                            <TextField variant="standard" multiline fullWidth disabled 
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                            <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -183,8 +183,8 @@ export default function Home() {
                                 value={invite.eventDetails}
                             />
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                            <TextField variant="standard" fullWidth disabled 
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                            <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -197,25 +197,25 @@ export default function Home() {
                             />
 
 
-                            <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                            <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
                                 <h4>Date:</h4>
                             </div>
 
-                            <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                            <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs} >
                                     <DateTimePicker fullWidth disableOpenPicker readOnly
-                                    format='DD/MM/YYYY hh:mm A'
-                                    sx={{
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                        marginTop: "-13px",
-                                        marginLeft: "-15px"
-                                    }}
-                                    value={dayjs(invite.eventDate)}  
-                                    ampm={true}
+                                        format='DD/MM/YYYY hh:mm A'
+                                        sx={{
+                                            '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                            marginTop: "-13px",
+                                            marginLeft: "-15px"
+                                        }}
+                                        value={dayjs(invite.eventDate)}
+                                        ampm={true}
                                     />
                                 </LocalizationProvider>
 
-                                <TextField id="outlined-basic" variant="standard" fullWidth disabled style={{width: "85%"}}
+                                <TextField id="outlined-basic" variant="standard" fullWidth disabled style={{ width: "85%" }}
                                     sx={{
                                         "& .MuiInputBase-input.Mui-disabled": {
                                             WebkitTextFillColor: "#000000",
@@ -235,29 +235,29 @@ export default function Home() {
 
                         <h4> Use this link to view your invite and guest responses </h4>
                         <div style={linkDivStyle}>
-                            <TextField fullWidth 
+                            <TextField fullWidth
                                 value={inviteLink}
                                 InputProps={{
                                     readOnly: true
                                 }}
-                                style={{marginRight:"20px"}}
+                                style={{ marginRight: "20px" }}
                             />
                             <Button onClick={copyInviteLink} variant="contained" size="small">COPY</Button>
                         </div>
 
                         <h4> Share this link to your guests to let them respond </h4>
                         <div style={linkDivStyle}>
-                            <TextField fullWidth 
-                            value={responseLink}
+                            <TextField fullWidth
+                                value={responseLink}
                                 InputProps={{
                                     readOnly: true
                                 }}
-                                style={{marginRight:"20px"}}
+                                style={{ marginRight: "20px" }}
                             />
                             <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
                         </div>
 
-                        <br/>
+                        <br />
                     </Paper>
                 </>
             }

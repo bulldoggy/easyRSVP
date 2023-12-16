@@ -10,8 +10,8 @@ import dayjs from "dayjs";
 import Error from './Error';
 
 export default function Home() {
-    const paperStyle = {padding:"10px 20px", width: 800, margin:"20px auto"};
-    const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px"};
+    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px" };
 
     const [invite, setInvite] = useState(null);
     const [inviteCode, setInviteCode] = useState('');
@@ -26,7 +26,7 @@ export default function Home() {
 
     const [copySnackbar, setCopySnackbar] = useState(false)
     const [errorSnackbar, setErrorSnackbar] = useState(false)
-    
+
     const [response, setResponse] = useState(null);
     const [guestLink, setGuestLink] = useState('');
     const [codeError, setCodeError] = useState(null);
@@ -37,62 +37,62 @@ export default function Home() {
     };
 
     const submitResponse = (e) => {
-        if(guestName === '' || guestMobile === '' || guestDecision === '') {
+        if (guestName === '' || guestMobile === '' || guestDecision === '') {
             setNameTouched(true);
             setMobileTouched(true);
             setDecisionTouched(true);
             setErrorSnackbar(true);
         } else {
             e.preventDefault();
-            const responseCreateDTO = {inviteCode, guestName, guestMobile, guestDecision, guestNotes};
-            
+            const responseCreateDTO = { inviteCode, guestName, guestMobile, guestDecision, guestNotes };
+
             fetch("http://localhost:8080/rsvp/createResponse", {
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify(responseCreateDTO)
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(responseCreateDTO)
             })
-            .then(response => response.json())
-            .then(result => {
-                setResponse(result);
-            })
+                .then(response => response.json())
+                .then(result => {
+                    setResponse(result);
+                })
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch("http://localhost:8080" + window.location.pathname + window.location.search)
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Something went wrong');
-        })
-        .then(result => {
-            setInvite(result);
-            setInviteCode(result.inviteCode);
-            setCodeError(false);
-        })
-        .catch((error) => {
-            setCodeError(true);
-        });
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Something went wrong');
+            })
+            .then(result => {
+                setInvite(result);
+                setInviteCode(result.inviteCode);
+                setCodeError(false);
+            })
+            .catch((error) => {
+                setCodeError(true);
+            });
     }, [])
 
     useEffect(() => {
-        if(response != null) {
-            setGuestLink(`localhost:3000/rsvp/guest?code=`+response.guestCode);
+        if (response != null) {
+            setGuestLink(`localhost:3000/rsvp/guest?code=` + response.guestCode);
             //logging to view
             console.log(response);
         }
     }, [response]);
 
     return (
-        <Container style={{paddingTop:"60px"}}>
-            {codeError == true && //code is invalid
-                <Error 
+        <Container style={{ paddingTop: "60px" }}>
+            {codeError === true && //code is invalid
+                <Error
                     message={"Invalid link provided, contact your host to check if the invite link is still active"}
                 />
-            } 
+            }
 
-            {codeError == false && invite != null && //if invite fetched from server
+            {codeError === false && invite != null && //if invite fetched from server
                 <Paper elevation={3} style={paperStyle}>
                     <h2> You have been invited! </h2>
                     <Box
@@ -104,8 +104,8 @@ export default function Home() {
                         autoComplete="off"
                     >
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Host:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -117,8 +117,8 @@ export default function Home() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Details:</h4>
-                        <TextField variant="standard" multiline fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -130,8 +130,8 @@ export default function Home() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{float: "left", marginBottom: "-5px"}}>Address:</h4>
-                        <TextField variant="standard" fullWidth disabled 
+                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                        <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -144,25 +144,25 @@ export default function Home() {
                         />
 
 
-                        <div style={{width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px"}}> 
+                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
                             <h4>Date:</h4>
                         </div>
 
-                        <div style={{width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
                                 <DateTimePicker fullWidth disableOpenPicker readOnly
-                                format='DD/MM/YYYY hh:mm A'
-                                sx={{
-                                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                    marginTop: "-13px",
-                                    marginLeft: "-15px"
-                                }}
-                                value={dayjs(invite.eventDate)}  
-                                ampm={true}
+                                    format='DD/MM/YYYY hh:mm A'
+                                    sx={{
+                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                        marginTop: "-13px",
+                                        marginLeft: "-15px"
+                                    }}
+                                    value={dayjs(invite.eventDate)}
+                                    ampm={true}
                                 />
                             </LocalizationProvider>
 
-                            <TextField variant="standard" fullWidth disabled style={{width: "85%"}}
+                            <TextField variant="standard" fullWidth disabled style={{ width: "85%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -178,7 +178,7 @@ export default function Home() {
                 </Paper>
             }
 
-            {codeError == false && response == null && //if response not created yet
+            {codeError === false && response === null && //if response not created yet
                 <Paper elevation={3} style={paperStyle}>
                     <h2> RSVP below now! </h2>
 
@@ -189,18 +189,18 @@ export default function Home() {
                         }}
                         autoComplete="off"
                     >
-                        <TextField label="Name" fullWidth required 
+                        <TextField label="Name" fullWidth required
                             value={guestName}
-                            onChange={(e)=> {
-                                setGuestName(e.target.value) 
+                            onChange={(e) => {
+                                setGuestName(e.target.value)
                                 setNameTouched(true);
                             }}
                             error={nameTouched && guestName.length === 0}
                         />
-                        <TextField label="Mobile Number" fullWidth required 
+                        <TextField label="Mobile Number" fullWidth required
                             value={guestMobile}
-                            onChange={(e)=> {
-                                setGuestMobile(e.target.value) 
+                            onChange={(e) => {
+                                setGuestMobile(e.target.value)
                                 setMobileTouched(true);
                             }}
                             error={mobileTouched && guestMobile.length === 0}
@@ -212,12 +212,12 @@ export default function Home() {
                                 row
                                 aria-labelledby="demo-row-radio-buttons-group-label"
                                 name="row-radio-buttons-group"
-                                onChange={(e)=> {
-                                    setGuestDecision(e.target.value) 
+                                onChange={(e) => {
+                                    setGuestDecision(e.target.value)
                                     setDecisionTouched(true);
                                 }}
                                 value={guestDecision}
-                                //error={decisionTouched && guestDecision.length === 0}
+                            //error={decisionTouched && guestDecision.length === 0}
                             >
                                 <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
                                 <FormControlLabel value="No" control={<Radio />} label="No" />
@@ -227,8 +227,8 @@ export default function Home() {
 
                         <TextField label="Additional Notes" multiline fullWidth rows={3}
                             value={guestNotes}
-                            onChange={(e)=> {
-                                setGuestNotes(e.target.value) 
+                            onChange={(e) => {
+                                setGuestNotes(e.target.value)
                             }}
                         />
 
@@ -237,7 +237,7 @@ export default function Home() {
                 </Paper>
             }
 
-            {codeError == false && response != null && //if response already created 
+            {codeError === false && response != null && //if response already created 
                 <>
                     <Paper elevation={3} style={paperStyle}>
                         <h2> Your RSVP has been sent! </h2>
@@ -251,8 +251,8 @@ export default function Home() {
                             autoComplete="off"
                         >
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}>Guest:</h4>
-                            <TextField variant="standard" fullWidth disabled 
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Guest:</h4>
+                            <TextField variant="standard" fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -264,8 +264,8 @@ export default function Home() {
                                 value={guestName}
                             />
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}>Mobile:</h4>
-                            <TextField variant="standard" fullWidth disabled 
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Mobile:</h4>
+                            <TextField variant="standard" fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -277,7 +277,7 @@ export default function Home() {
                                 value={guestMobile}
                             />
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}> Attendance:</h4>
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}> Attendance:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -290,7 +290,7 @@ export default function Home() {
                                 value={guestDecision}
                             />
 
-                            <h4 style={{float: "left", marginBottom: "-5px"}}> Additional Notes:</h4>
+                            <h4 style={{ float: "left", marginBottom: "-5px" }}> Additional Notes:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -310,17 +310,17 @@ export default function Home() {
 
                         <h4> Use this personalized link to view and edit your response in future</h4>
                         <div style={linkDivStyle}>
-                            <TextField fullWidth 
+                            <TextField fullWidth
                                 value={guestLink}
                                 InputProps={{
                                     readOnly: true
                                 }}
-                                style={{marginRight:"20px"}}
+                                style={{ marginRight: "20px" }}
                             />
                             <Button onClick={copyGuestLink} variant="contained" size="small">COPY</Button>
                         </div>
 
-                        <br/>
+                        <br />
                     </Paper>
                 </>
             }
