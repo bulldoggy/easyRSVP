@@ -1,8 +1,10 @@
 package com.easyrsvpgroup.easyrsvp.controller;
 
 import com.easyrsvpgroup.easyrsvp.dto.*;
+import com.easyrsvpgroup.easyrsvp.model.Counter;
 import com.easyrsvpgroup.easyrsvp.model.Invite;
 import com.easyrsvpgroup.easyrsvp.model.Response;
+import com.easyrsvpgroup.easyrsvp.service.CounterService;
 import com.easyrsvpgroup.easyrsvp.service.InviteService;
 import com.easyrsvpgroup.easyrsvp.service.ResponseService;
 import com.easyrsvpgroup.easyrsvp.util.RandomStringGenerator;
@@ -13,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/rsvp")
@@ -23,6 +24,8 @@ public class RsvpController {
     private InviteService inviteService;
     @Autowired
     private ResponseService responseService;
+    @Autowired
+    private CounterService counterService;
 
     final static String inviteCode = "i";
     final static String responseCode = "r";
@@ -129,5 +132,15 @@ public class RsvpController {
         r.setLastModified(new Date());
 
         return responseService.updateResponse(r);
+    }
+
+    @GetMapping("/getCount")
+    public Counter getCount(@RequestParam("counterId") int counterId) {
+       return counterService.getCount(counterId);
+    }
+
+    @PutMapping("/addCount")
+    public Counter addCount(@RequestParam("counterId") int counterId) {
+        return counterService.addCount(counterId);
     }
 }

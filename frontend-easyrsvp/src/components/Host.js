@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Container, Paper, Snackbar, Alert, Modal, Box, TextField, TableCell, Table, TableHead, TableRow, TableSortLabel, TableContainer, TableBody } from '@mui/material';
+import { Button, Container, Paper, Snackbar, Alert, Modal, Box, TextField, TableCell, Table, TableHead, TableRow, TableSortLabel, TableContainer, TableBody, TablePagination } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState, useEffect } from 'react';
@@ -59,15 +59,26 @@ export default function Host() {
     const [orderDirection, setOrderDirection] = useState('asc');
     const [valueToOrderBy, setValueToOrderBy] = useState('guestName');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const [notesToView, setNotesToView] = useState('');
     const [rsvpCodeToDelete, setRsvpCodeToDelete] = useState('');
     const [responseLink, setResponseLink] = useState('');
     const [copySnackbar, setCopySnackbar] = useState(false)
     const [deleteRsvpSnackbar, setDeleteRsvpSnackbar] = useState(false)
+    const [attendingCount, setAttendingCount] = useState(0);
 
     let timezone = "Local Time";
+
+    const handlePageChange = (event, newPage) => {
+        setPage(newPage);
+
+    }
+
+    const handleRowsPerPageChange = (event) => {
+        setRowsPerPage(parseInt(event.target.value), 10);
+        setPage(0);
+    }
 
     const copyResponseLink = () => {
         setCopySnackbar(true);
@@ -185,8 +196,16 @@ export default function Host() {
                 throw new Error('Something went wrong');
             })
             .then(result => {
+                let rsp = result.responses;
+                let count = 0;
+                for (let i = 0; i < rsp.length; i++) {
+                    if (result.responses[i].guestDecision === 'Yes') {
+                        count++;
+                    }
+                }
+                setAttendingCount(count);
                 setInvite(result);
-                setResponses(result.responses);
+                setResponses(rsp);
                 setCodeError(false);
                 console.log(result);
             })
@@ -391,8 +410,9 @@ export default function Host() {
 
             {responses.length > 0 && inviteDeleted === false &&
                 <Paper elevation={3} style={paperStyle}>
-                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                         <h2>Guests</h2>
+                        <h4> {attendingCount} / {responses.length} Attending </h4>
                     </div>
 
                     <TableContainer>
@@ -443,6 +463,7 @@ export default function Host() {
 
                             <TableBody>
                                 {sortedRowInformation(responses, getComparator(orderDirection, valueToOrderBy))
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((response, index) => (
                                         <TableRow key={index}>
                                             <TableCell>
@@ -483,6 +504,22 @@ export default function Host() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 20, { label: "All", value: responses.length }]}
+                        component="div"
+                        count={responses.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handlePageChange}
+                        onRowsPerPageChange={handleRowsPerPageChange}
+                    />
+                </Paper>}
+
+            {responses.length === 0 && inviteDeleted === false &&
+                <Paper elevation={3} style={paperStyle}>
+                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+                        <h4>No responses yet...</h4>
+                    </div>
                 </Paper>}
 
             <Paper elevation={3} style={paperStyle}>
@@ -526,6 +563,9 @@ export default function Host() {
                 <Box sx={modalStyle}>
                     <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "15px" }}>
                         <h3> Confirm deletion of your Invite? </h3>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+                        <h4> (Your guests will lose access to their RSVP as well) </h4>
                     </div>
 
                     <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginTop: "30px" }}>
