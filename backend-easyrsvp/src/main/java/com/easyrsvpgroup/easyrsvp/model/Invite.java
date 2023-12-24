@@ -26,6 +26,7 @@ public class Invite {
     private String eventDetails;
     @Getter
     @Setter
+    @Column(length = 65555)
     private String eventAddress;
     @Getter
     @Setter
