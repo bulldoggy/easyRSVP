@@ -56,8 +56,6 @@ export default function Home() {
 
             e.preventDefault();
             const inviteCreateDTO = { ownerName, eventDetails, eventAddress, eventDate, timezone };
-            //logging to view inviteCreateDTO
-            console.log(inviteCreateDTO);
             fetch("http://localhost:8080/rsvp/createInvite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

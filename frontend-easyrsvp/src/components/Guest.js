@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import { Button, Container, Paper, Snackbar, Alert, Radio, RadioGroup, FormControlLabel, FormControl, Modal, Typography, FormLabel } from '@mui/material';
+import { Button, Container, Paper, Snackbar, Alert, Radio, RadioGroup, FormControlLabel, FormControl, Modal, FormLabel } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState, useEffect } from 'react';
@@ -35,7 +35,6 @@ export default function Home() {
 
     const [nameTouched, setNameTouched] = useState(false);
     const [mobileTouched, setMobileTouched] = useState(false);
-    const [decisionTouched, setDecisionTouched] = useState(false);
 
     const [errorSnackbar, setErrorSnackbar] = useState(false)
     const [editSuccessSnackbar, setEditSuccessSnackbar] = useState(false)
@@ -54,7 +53,6 @@ export default function Home() {
         if (guestName === '' || guestMobile === '' || guestDecision === '') {
             setNameTouched(true);
             setMobileTouched(true);
-            setDecisionTouched(true);
             setErrorSnackbar(true);
         } else {
             e.preventDefault();
@@ -107,7 +105,6 @@ export default function Home() {
                 setResponse(result.response);
                 setInvite(result.invite);
                 setCodeError(false);
-                console.log(result);
             })
             .catch((error) => {
                 setCodeError(true);
@@ -336,7 +333,6 @@ export default function Home() {
                                 name="row-radio-buttons-group"
                                 onChange={(e) => {
                                     setGuestDecision(e.target.value)
-                                    setDecisionTouched(true);
                                 }}
                                 value={guestDecision}
                             >

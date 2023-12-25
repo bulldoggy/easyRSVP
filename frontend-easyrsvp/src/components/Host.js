@@ -135,8 +135,6 @@ export default function Host() {
 
             e.preventDefault();
             const inviteEditDTO = { inviteCode, ownerName, eventDetails, eventAddress, eventDate, timezone };
-            //logging to view inviteCreateDTO
-            console.log(inviteEditDTO);
             fetch("http://localhost:8080/rsvp/editInvite", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -207,7 +205,6 @@ export default function Host() {
                 setInvite(result);
                 setResponses(rsp);
                 setCodeError(false);
-                console.log(result);
             })
             .catch((error) => {
                 setCodeError(true);
@@ -237,7 +234,7 @@ export default function Host() {
 
     return (
         <Container style={{ paddingTop: "60px" }}>
-            {inviteDeleted === true && //code is invalid
+            {inviteDeleted === true && //code is deleted
                 <Error
                     message={"Your invite has been deleted"}
                 />
@@ -515,28 +512,31 @@ export default function Host() {
                     />
                 </Paper>}
 
-            {responses.length === 0 && inviteDeleted === false &&
-                <Paper elevation={3} style={paperStyle}>
-                    <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
-                        <h4>No responses yet...</h4>
-                    </div>
-                </Paper>}
+            {responses.length === 0 && inviteDeleted === false && codeError === false &&
+                <>
+                    <Paper elevation={3} style={paperStyle}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+                            <h4>No responses yet...</h4>
+                        </div>
+                    </Paper>
 
-            <Paper elevation={3} style={paperStyle}>
-                <h4> Share this link to your guests to let them respond </h4>
-                <div style={linkDivStyle}>
-                    <TextField fullWidth
-                        value={responseLink}
-                        InputProps={{
-                            readOnly: true
-                        }}
-                        style={{ marginRight: "20px" }}
-                    />
-                    <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
-                </div>
+                    <Paper elevation={3} style={paperStyle}>
+                        <h4> Share this link to your guests to let them respond </h4>
+                        <div style={linkDivStyle}>
+                            <TextField fullWidth
+                                value={responseLink}
+                                InputProps={{
+                                    readOnly: true
+                                }}
+                                style={{ marginRight: "20px" }}
+                            />
+                            <Button onClick={copyResponseLink} variant="contained" size="small">COPY</Button>
+                        </div>
 
-                <br />
-            </Paper>
+                        <br />
+                    </Paper>
+                </>
+            }
 
             <Snackbar
                 open={editSuccessSnackbar}

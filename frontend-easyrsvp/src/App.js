@@ -11,11 +11,7 @@ import {
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-//Add footer for users to add comments and plaything with redis
 //beautify words and colours () change bg color of app to pale green/yellow
-//see if theres error prompt for radio group
-//standardize all words (capitalize, etc)
-//set char limit for name/phonenumber
 //timed delete for invites
 
 function App() {

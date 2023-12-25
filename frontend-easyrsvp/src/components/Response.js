@@ -22,7 +22,6 @@ export default function Home() {
 
     const [nameTouched, setNameTouched] = useState(false);
     const [mobileTouched, setMobileTouched] = useState(false);
-    const [decisionTouched, setDecisionTouched] = useState(false);
 
     const [copySnackbar, setCopySnackbar] = useState(false)
     const [errorSnackbar, setErrorSnackbar] = useState(false)
@@ -40,7 +39,6 @@ export default function Home() {
         if (guestName === '' || guestMobile === '' || guestDecision === '') {
             setNameTouched(true);
             setMobileTouched(true);
-            setDecisionTouched(true);
             setErrorSnackbar(true);
         } else {
             e.preventDefault();
@@ -79,8 +77,6 @@ export default function Home() {
     useEffect(() => {
         if (response != null) {
             setGuestLink(`localhost:3000/rsvp/guest?code=` + response.guestCode);
-            //logging to view
-            console.log(response);
         }
     }, [response]);
 
@@ -214,7 +210,6 @@ export default function Home() {
                                 name="row-radio-buttons-group"
                                 onChange={(e) => {
                                     setGuestDecision(e.target.value)
-                                    setDecisionTouched(true);
                                 }}
                                 value={guestDecision}
                             //error={decisionTouched && guestDecision.length === 0}
