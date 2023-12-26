@@ -44,7 +44,7 @@ export default function Home() {
             e.preventDefault();
             const responseCreateDTO = { inviteCode, guestName, guestMobile, guestDecision, guestNotes };
 
-            fetch("http://localhost:8080/rsvp/createResponse", {
+            fetch("https://easyrsvp.onrender.com/rsvp/createResponse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(responseCreateDTO)
@@ -57,7 +57,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8080" + window.location.pathname + window.location.search)
+        fetch("https://easyrsvp.onrender.com" + window.location.pathname + window.location.search)
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -76,7 +76,7 @@ export default function Home() {
 
     useEffect(() => {
         if (response != null) {
-            setGuestLink(`localhost:3000/rsvp/guest?code=` + response.guestCode);
+            setGuestLink(`https://easyrsvp.onrender.com/rsvp/guest?code=` + response.guestCode);
         }
     }, [response]);
 

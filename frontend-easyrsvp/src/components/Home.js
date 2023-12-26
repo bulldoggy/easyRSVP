@@ -56,7 +56,7 @@ export default function Home() {
 
             e.preventDefault();
             const inviteCreateDTO = { ownerName, eventDetails, eventAddress, eventDate, timezone };
-            fetch("http://localhost:8080/rsvp/createInvite", {
+            fetch("https://easyrsvp.onrender.com//rsvp/createInvite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(inviteCreateDTO)
@@ -70,8 +70,8 @@ export default function Home() {
 
     useEffect(() => {
         if (invite != null) {
-            setInviteLink(`localhost:3000/rsvp/host?code=` + invite.inviteCode);
-            setResponseLink(`localhost:3000/rsvp/response?code=` + invite.responseCode);
+            setInviteLink(`https://easyrsvp.onrender.com/rsvp/host?code=` + invite.inviteCode);
+            setResponseLink(`https://easyrsvp.onrender.com/rsvp/response?code=` + invite.responseCode);
         }
     }, [invite]);
 
