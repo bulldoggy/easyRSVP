@@ -314,7 +314,7 @@ export default function Host() {
                                 </LocalizationProvider>
                             </div>
 
-                            <TextField variant="standard" multiline fullWidth disabled style={{ width: "75%" }}
+                            <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
