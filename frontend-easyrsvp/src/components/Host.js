@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import copy from "copy-to-clipboard";
 
 export default function Host() {
-    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const paperStyle = { padding: "10px 20px", width: 850, margin: "20px auto" };
     const modalStyle = {
         position: 'absolute',
         top: '50%',
@@ -135,7 +135,7 @@ export default function Host() {
 
             e.preventDefault();
             const inviteEditDTO = { inviteCode, ownerName, eventDetails, eventAddress, eventDate, timezone };
-            fetch("https://easyrsvp.onrender.com/rsvp/editInvite", {
+            fetch("http://localhost:8080/rsvp/editInvite", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(inviteEditDTO)
@@ -161,7 +161,7 @@ export default function Host() {
     const submitDeleteForm = (e) => {
         e.preventDefault();
 
-        fetch("https://easyrsvp.onrender.com/rsvp/deleteInvite?code=" + invite.inviteCode, {
+        fetch("http://localhost:8080/rsvp/deleteInvite?code=" + invite.inviteCode, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -174,7 +174,7 @@ export default function Host() {
     const submitDeleteRsvp = (e) => {
         e.preventDefault();
 
-        fetch("https://easyrsvp.onrender.com/rsvp/deleteResponse?code=" + rsvpCodeToDelete, {
+        fetch("http://localhost:8080/rsvp/deleteResponse?code=" + rsvpCodeToDelete, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -186,7 +186,7 @@ export default function Host() {
     }
 
     const fetchInvite = () => {
-        fetch("https://easyrsvp.onrender.com" + window.location.pathname + window.location.search)
+        fetch("http://localhost:8080/rsvp/host?code=" + window.location.search.substring(1))
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -228,7 +228,7 @@ export default function Host() {
             setSavedEventDate(invite.eventDate);
             setSavedEventTimezone(invite.timezone);
             setInviteCode(invite.inviteCode);
-            setResponseLink(`https://easyrsvp.onrender.com/rsvp/response?code=` + invite.responseCode);
+            setResponseLink(`http://localhost:3000/response?` + invite.responseCode);
         }
     }, [invite])
 
@@ -249,17 +249,16 @@ export default function Host() {
             {codeError === false && inviteDeleted === false && editing === false && invite != null &&//if invite fetched from server and not editing
                 <Paper elevation={3} style={paperStyle}>
                     <h2> Your Invite </h2>
+
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
-                        noValidate
+                        display="flex"
+                        flexDirection="column"
                         autoComplete="off"
                     >
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
-                        <TextField variant="standard" fullWidth disabled
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Host:</h4>
+                        <TextField variant="standard" fullWidth disabled multiline
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -271,7 +270,7 @@ export default function Host() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Details:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -284,8 +283,8 @@ export default function Host() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
-                        <TextField variant="standard" fullWidth disabled
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Address:</h4>
+                        <TextField variant="standard" fullWidth disabled multiline
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "#000000",
@@ -298,10 +297,7 @@ export default function Host() {
                         />
 
 
-                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
-                            <h4>Date:</h4>
-                        </div>
-
+                        <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
                         <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
                                 <DateTimePicker fullWidth disableOpenPicker readOnly
@@ -316,7 +312,7 @@ export default function Host() {
                                 />
                             </LocalizationProvider>
 
-                            <TextField variant="standard" fullWidth disabled style={{ width: "85%" }}
+                            <TextField variant="standard" multiline fullWidth disabled style={{ width: "85%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -329,7 +325,7 @@ export default function Host() {
                             />
                         </div>
 
-                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px" }}>
+                        <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-evenly", marginBottom: "10px", marginTop: "10px" }}>
                             <Button variant="contained" onClick={() => setEditing(true)} color="info" style={{ marginRight: "-140px" }}>Edit</Button>
                             <Button variant="contained" onClick={() => setModalOpen(true)} color="error" style={{ marginLeft: "-140px" }}>Delete</Button>
                         </div>
@@ -344,12 +340,12 @@ export default function Host() {
 
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
+                        display="flex"
+                        flexDirection="column"
+                        gap="15px"
                         autoComplete="off"
                     >
-                        <TextField label="Host Name" fullWidth required
+                        <TextField label="Host Name" fullWidth required multiline
                             value={ownerName}
                             onChange={(e) => {
                                 setOwnerName(e.target.value)
@@ -357,7 +353,7 @@ export default function Host() {
                             }}
                             error={nameTouched && ownerName.length === 0}
                         />
-                        <TextField label="Event Details" multiline fullWidth required rows={3}
+                        <TextField label="Event Details" multiline fullWidth required minRows={3}
                             value={eventDetails}
                             onChange={(e) => {
                                 setEventDetails(e.target.value)
@@ -365,7 +361,7 @@ export default function Host() {
                             }}
                             error={detailsTouched && eventDetails.length === 0}
                         />
-                        <TextField label="Event Address" fullWidth required
+                        <TextField label="Event Address" fullWidth required multiline
                             value={eventAddress}
                             onChange={(e) => {
                                 setEventAddress(e.target.value)
@@ -394,6 +390,7 @@ export default function Host() {
                             <TextField label="Time Zone (for intl. events)" style={{ width: "67%", marginRight: "-15px" }}
                                 value={eventTimezone}
                                 onChange={(e) => setEventTimezone(e.target.value)}
+                                multiline
                             />
                         </div>
 
@@ -409,7 +406,7 @@ export default function Host() {
                 <Paper elevation={3} style={paperStyle}>
                     <div style={{ width: "parent", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                         <h2>Guests</h2>
-                        <h4> {attendingCount} / {responses.length} Attending </h4>
+                        <h4 style={{ marginTop: "-10px" }}> {attendingCount} / {responses.length} Attending </h4>
                     </div>
 
                     <TableContainer>
@@ -464,17 +461,7 @@ export default function Host() {
                                     .map((response, index) => (
                                         <TableRow key={index}>
                                             <TableCell>
-                                                <TextField variant="standard" multiline fullWidth disabled
-                                                    sx={{
-                                                        "& .MuiInputBase-input.Mui-disabled": {
-                                                            WebkitTextFillColor: "#000000",
-                                                        },
-                                                    }}
-                                                    InputProps={{
-                                                        disableUnderline: true
-                                                    }}
-                                                    value={response.guestName}
-                                                />
+                                                {response.guestName}
                                             </TableCell>
                                             <TableCell>
                                                 {response.guestMobile}
@@ -501,6 +488,7 @@ export default function Host() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 20, { label: "All", value: responses.length }]}
                         component="div"

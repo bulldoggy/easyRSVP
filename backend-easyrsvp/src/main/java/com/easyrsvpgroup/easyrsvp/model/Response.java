@@ -18,9 +18,11 @@ public class Response {
     private UUID responseId;
     @Getter
     @Setter
+    @Column(length = 511)
     private String guestName;
     @Getter
     @Setter
+    @Column(length = 511)
     private String guestMobile;
     @Getter
     @Setter
@@ -28,7 +30,7 @@ public class Response {
     private Decision guestDecision;
     @Getter
     @Setter
-    @Column(length = 65555)
+    @Column(length = 2047)
     private String guestNotes;
     @Getter
     @Setter

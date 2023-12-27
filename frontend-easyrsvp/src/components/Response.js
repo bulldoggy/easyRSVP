@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import Error from './Error';
 
 export default function Home() {
-    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const paperStyle = { padding: "10px 20px", width: 850, margin: "20px auto" };
     const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px" };
 
     const [invite, setInvite] = useState(null);
@@ -44,7 +44,7 @@ export default function Home() {
             e.preventDefault();
             const responseCreateDTO = { inviteCode, guestName, guestMobile, guestDecision, guestNotes };
 
-            fetch("https://easyrsvp.onrender.com/rsvp/createResponse", {
+            fetch("http://localhost:8080/rsvp/createResponse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(responseCreateDTO)
@@ -57,7 +57,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        fetch("https://easyrsvp.onrender.com" + window.location.pathname + window.location.search)
+        fetch("http://localhost:8080/rsvp/response?code=" + window.location.search.substring(1))
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -72,11 +72,12 @@ export default function Home() {
             .catch((error) => {
                 setCodeError(true);
             });
+        console.log(window.location);
     }, [])
 
     useEffect(() => {
         if (response != null) {
-            setGuestLink(`https://easyrsvp.onrender.com/rsvp/guest?code=` + response.guestCode);
+            setGuestLink(`http://localhost:3000/guest?` + response.guestCode);
         }
     }, [response]);
 
@@ -93,14 +94,12 @@ export default function Home() {
                     <h2> You have been invited! </h2>
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
-                        noValidate
+                        display="flex"
+                        flexDirection="column"
                         autoComplete="off"
                     >
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Host:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -113,7 +112,7 @@ export default function Home() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Details:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -126,7 +125,7 @@ export default function Home() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Address:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -140,9 +139,7 @@ export default function Home() {
                         />
 
 
-                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
-                            <h4>Date:</h4>
-                        </div>
+                        <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
 
                         <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
@@ -170,6 +167,7 @@ export default function Home() {
                                 value={invite.timezone}
                             />
                         </div>
+                        <br/>
                     </Box>
                 </Paper>
             }
@@ -180,12 +178,12 @@ export default function Home() {
 
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
+                        display="flex"
+                        flexDirection="column"
+                        gap="15px"
                         autoComplete="off"
                     >
-                        <TextField label="Name" fullWidth required
+                        <TextField label="Name" fullWidth required multiline
                             value={guestName}
                             onChange={(e) => {
                                 setGuestName(e.target.value)
@@ -193,7 +191,7 @@ export default function Home() {
                             }}
                             error={nameTouched && guestName.length === 0}
                         />
-                        <TextField label="Mobile Number" fullWidth required
+                        <TextField label="Mobile Number" fullWidth required multiline
                             value={guestMobile}
                             onChange={(e) => {
                                 setGuestMobile(e.target.value)
@@ -214,20 +212,24 @@ export default function Home() {
                                 value={guestDecision}
                             //error={decisionTouched && guestDecision.length === 0}
                             >
-                                <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                                <FormControlLabel value="No" control={<Radio />} label="No" />
-                                <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
+                                <div style={{ display: "flex", minWidth: "100%", justifyContent: "center" }}>
+                                    <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="No" control={<Radio />} label="No" />
+                                    <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
+                                </div>
                             </RadioGroup>
                         </FormControl>
 
-                        <TextField label="Additional Notes" multiline fullWidth rows={3}
+                        <TextField label="Additional Notes" multiline fullWidth minRows={3}
                             value={guestNotes}
                             onChange={(e) => {
                                 setGuestNotes(e.target.value)
                             }}
                         />
 
-                        <Button variant="contained" onClick={submitResponse} color="success">Submit</Button>
+                        <div style={{ maxWidth: "800px" }}>
+                            <Button variant="contained" onClick={submitResponse} color="success">Submit</Button>
+                        </div>
                     </Box>
                 </Paper>
             }
@@ -239,15 +241,13 @@ export default function Home() {
 
                         <Box
                             component="form"
-                            sx={{
-                                '& > :not(style)': { m: 1 },
-                            }}
-                            noValidate
+                            display="flex"
+                            flexDirection="column"
                             autoComplete="off"
                         >
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Guest:</h4>
-                            <TextField variant="standard" fullWidth disabled
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}>Guest:</h4>
+                            <TextField variant="standard" fullWidth disabled multiline
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -259,8 +259,8 @@ export default function Home() {
                                 value={guestName}
                             />
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Mobile:</h4>
-                            <TextField variant="standard" fullWidth disabled
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}>Mobile:</h4>
+                            <TextField variant="standard" fullWidth disabled multiline
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -272,7 +272,7 @@ export default function Home() {
                                 value={guestMobile}
                             />
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}> Attendance:</h4>
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}> Attendance:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -285,7 +285,7 @@ export default function Home() {
                                 value={guestDecision}
                             />
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}> Additional Notes:</h4>
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}> Additional Notes:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -298,6 +298,7 @@ export default function Home() {
                                 value={guestNotes}
                             />
                         </Box>
+                        <br/>
                     </Paper>
 
                     <Paper elevation={3} style={paperStyle}>

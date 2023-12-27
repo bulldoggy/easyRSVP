@@ -9,7 +9,7 @@ import copy from "copy-to-clipboard";
 import dayjs from "dayjs";
 
 export default function Home() {
-    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const paperStyle = { padding: "10px 20px", width: 850, margin: "20px auto" };
     const linkDivStyle = { width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: "-15px" };
 
     const [ownerName, setOwnerName] = useState('');
@@ -56,7 +56,7 @@ export default function Home() {
 
             e.preventDefault();
             const inviteCreateDTO = { ownerName, eventDetails, eventAddress, eventDate, timezone };
-            fetch("https://easyrsvp.onrender.com//rsvp/createInvite", {
+            fetch("http://localhost:8080/rsvp/createInvite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(inviteCreateDTO)
@@ -70,8 +70,8 @@ export default function Home() {
 
     useEffect(() => {
         if (invite != null) {
-            setInviteLink(`https://easyrsvp.onrender.com/rsvp/host?code=` + invite.inviteCode);
-            setResponseLink(`https://easyrsvp.onrender.com/rsvp/response?code=` + invite.responseCode);
+            setInviteLink(`http://localhost:3000/host?` + invite.inviteCode);
+            setResponseLink(`http://localhost:3000/response?` + invite.responseCode);
         }
     }, [invite]);
 
@@ -83,12 +83,12 @@ export default function Home() {
 
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
+                        display="flex"
+                        flexDirection="column"
+                        gap="15px"
                         autoComplete="off"
                     >
-                        <TextField label="Host Name" fullWidth required
+                        <TextField label="Host Name" multiline fullWidth required 
                             value={ownerName}
                             onChange={(e) => {
                                 setOwnerName(e.target.value)
@@ -96,7 +96,7 @@ export default function Home() {
                             }}
                             error={nameTouched && ownerName.length === 0}
                         />
-                        <TextField label="Event Details" multiline fullWidth required rows={3}
+                        <TextField label="Event Details" multiline fullWidth required minRows={3}
                             value={eventDetails}
                             onChange={(e) => {
                                 setEventDetails(e.target.value)
@@ -104,7 +104,7 @@ export default function Home() {
                             }}
                             error={detailsTouched && eventDetails.length === 0}
                         />
-                        <TextField label="Event Address" fullWidth required
+                        <TextField label="Event Address" multiline fullWidth required
                             value={eventAddress}
                             onChange={(e) => {
                                 setEventAddress(e.target.value)
@@ -113,30 +113,38 @@ export default function Home() {
                             error={addressTouched && eventAddress.length === 0}
                         />
                         <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs} >
-                                <DateTimePicker label="Event Date" fullWidth
-                                    format='DD/MM/YYYY hh:mm A'
-                                    value={eventDate}
-                                    onChange={(e) => {
-                                        if (eventDate != null) {
-                                            setEventDate(e.$d);
-                                        }
-                                    }}
-                                    slotProps={{
-                                        textField: {
-                                            required: true,
-                                        },
-                                    }}
-                                    ampm={true}
+                            <div>
+                                <LocalizationProvider dateAdapter={AdapterDayjs} >
+                                    <DateTimePicker label="Event Date" fullWidth
+                                        format='DD/MM/YYYY hh:mm A'
+                                        value={eventDate}
+                                        onChange={(e) => {
+                                            if (eventDate != null) {
+                                                setEventDate(e.$d);
+                                            }
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                required: true,
+                                            },
+                                        }}
+                                        ampm={true}
+                                    />
+                                </LocalizationProvider>
+                            </div>
+                            <div style={{ minWidth: "65%" }}>
+                                <TextField label="Time Zone (for intl. events)"
+                                    value={eventTimezone}
+                                    onChange={(e) => setEventTimezone(e.target.value)}
+                                    style={{ minWidth: "100%" }}
+                                    multiline
                                 />
-                            </LocalizationProvider>
-                            <TextField label="Time Zone (for intl. events)" style={{ width: "67%", marginRight: "-15px" }}
-                                value={eventTimezone}
-                                onChange={(e) => setEventTimezone(e.target.value)}
-                            />
+                            </div>
                         </div>
 
-                        <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>
+                        <div style={{ maxWidth: "800px" }}>
+                            <Button variant="contained" color="success" onClick={submitInvite}>Submit</Button>
+                        </div>
                     </Box>
                 </Paper>
             }
@@ -146,16 +154,16 @@ export default function Home() {
                 <>
                     <Paper elevation={3} style={paperStyle}>
                         <h2> Invite created! </h2>
+                        <p style={{fontSize: "13px", marginTop: "-18px", color: "gray"}}>(Note: this invite will be deleted 90 days after the event)</p>
+
                         <Box
                             component="form"
-                            sx={{
-                                '& > :not(style)': { m: 1 },
-                            }}
-                            noValidate
+                            display="flex"
+                            flexDirection="column"
                             autoComplete="off"
                         >
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}>Host:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -168,7 +176,7 @@ export default function Home() {
                                 value={invite.ownerName}
                             />
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}>Details:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -181,7 +189,7 @@ export default function Home() {
                                 value={invite.eventDetails}
                             />
 
-                            <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                            <h4 style={{ display: "flex", marginBottom: "-3px" }}>Address:</h4>
                             <TextField variant="standard" multiline fullWidth disabled
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
@@ -195,10 +203,7 @@ export default function Home() {
                             />
 
 
-                            <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
-                                <h4>Date:</h4>
-                            </div>
-
+                            <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
                             <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs} >
                                     <DateTimePicker fullWidth disableOpenPicker readOnly
@@ -213,7 +218,7 @@ export default function Home() {
                                     />
                                 </LocalizationProvider>
 
-                                <TextField id="outlined-basic" variant="standard" fullWidth disabled style={{ width: "85%" }}
+                                <TextField id="outlined-basic" variant="standard" multiline fullWidth disabled style={{ width: "85%" }}
                                     sx={{
                                         "& .MuiInputBase-input.Mui-disabled": {
                                             WebkitTextFillColor: "#000000",
@@ -225,6 +230,8 @@ export default function Home() {
                                     value={invite.timezone}
                                 />
                             </div>
+
+                            <br />
                         </Box>
                     </Paper>
 

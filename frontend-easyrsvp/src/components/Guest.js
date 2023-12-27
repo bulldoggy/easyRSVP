@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import Error from './Error';
 
 export default function Home() {
-    const paperStyle = { padding: "10px 20px", width: 800, margin: "20px auto" };
+    const paperStyle = { padding: "10px 20px", width: 850, margin: "20px auto" };
     const modalStyle = {
         position: 'absolute',
         top: '50%',
@@ -58,7 +58,7 @@ export default function Home() {
             e.preventDefault();
             const responseEditDTO = { guestCode, guestName, guestMobile, guestDecision, guestNotes };
 
-            fetch("https://easyrsvp.onrender.com/rsvp/editResponse", {
+            fetch("http://localhost:8080/rsvp/editResponse", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(responseEditDTO)
@@ -83,7 +83,7 @@ export default function Home() {
     const submitDeleteForm = (e) => {
         e.preventDefault();
 
-        fetch("https://easyrsvp.onrender.com/rsvp/deleteResponse?code=" + response.guestCode, {
+        fetch("http://localhost:8080/rsvp/deleteResponse?code=" + response.guestCode, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -94,7 +94,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        fetch("https://easyrsvp.onrender.com" + window.location.pathname + window.location.search)
+        fetch("http://localhost:8080/rsvp/guest?code=" + window.location.search.substring(1))
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -144,14 +144,12 @@ export default function Home() {
                     <h2> You have been invited! </h2>
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
-                        noValidate
+                        display="flex"
+                        flexDirection="column"
                         autoComplete="off"
                     >
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Host:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Host:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -164,7 +162,7 @@ export default function Home() {
                             value={invite.ownerName}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Details:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Details:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -177,7 +175,7 @@ export default function Home() {
                             value={invite.eventDetails}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Address:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Address:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -191,9 +189,7 @@ export default function Home() {
                         />
 
 
-                        <div style={{ width: "parent", display: "flex", marginBottom: "-25px", marginTop: "-12px" }}>
-                            <h4>Date:</h4>
-                        </div>
+                        <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
 
                         <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                             <LocalizationProvider dateAdapter={AdapterDayjs} >
@@ -221,6 +217,7 @@ export default function Home() {
                                 value={invite.timezone}
                             />
                         </div>
+                        <br />
                     </Box>
                 </Paper>
             }
@@ -230,14 +227,12 @@ export default function Home() {
                     <h2> Your personal RSVP </h2>
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
-                        noValidate
+                        display="flex"
+                        flexDirection="column"
                         autoComplete="off"
                     >
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Guest:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Guest:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -250,7 +245,7 @@ export default function Home() {
                             value={guestName}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}>Mobile:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}>Mobile:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -263,7 +258,7 @@ export default function Home() {
                             value={guestMobile}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}> Attendance:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "-3px" }}> Attendance:</h4>
                         <TextField variant="standard" fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -276,7 +271,7 @@ export default function Home() {
                             value={guestDecision}
                         />
 
-                        <h4 style={{ float: "left", marginBottom: "-5px" }}> Additional Notes:</h4>
+                        <h4 style={{ display: "flex", marginBottom: "0px" }}> Additional Notes:</h4>
                         <TextField variant="standard" multiline fullWidth disabled
                             sx={{
                                 "& .MuiInputBase-input.Mui-disabled": {
@@ -303,12 +298,12 @@ export default function Home() {
 
                     <Box
                         component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
+                        display="flex"
+                        flexDirection="column"
+                        gap="15px"
                         autoComplete="off"
                     >
-                        <TextField label="Guest Name" fullWidth required
+                        <TextField label="Guest Name" fullWidth required multiline
                             value={guestName}
                             onChange={(e) => {
                                 setGuestName(e.target.value)
@@ -316,7 +311,7 @@ export default function Home() {
                             }}
                             error={nameTouched && guestName.length === 0}
                         />
-                        <TextField label="Mobile Number" fullWidth required
+                        <TextField label="Mobile Number" fullWidth required multiline
                             value={guestMobile}
                             onChange={(e) => {
                                 setGuestMobile(e.target.value)
@@ -336,9 +331,11 @@ export default function Home() {
                                 }}
                                 value={guestDecision}
                             >
-                                <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                                <FormControlLabel value="No" control={<Radio />} label="No" />
-                                <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
+                                <div style={{ display: "flex", minWidth: "100%", justifyContent: "center" }}>
+                                    <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="No" control={<Radio />} label="No" />
+                                    <FormControlLabel value="Unsure" control={<Radio />} label="Unsure" />
+                                </div>
                             </RadioGroup>
                         </FormControl>
 
@@ -390,6 +387,6 @@ export default function Home() {
                     </div>
                 </Box>
             </Modal>
-        </Container>
+        </Container >
     );
 }

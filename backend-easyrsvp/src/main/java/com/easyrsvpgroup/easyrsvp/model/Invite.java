@@ -19,14 +19,15 @@ public class Invite {
     private UUID inviteId;
     @Getter
     @Setter
+    @Column(length = 511)
     private String ownerName;
     @Getter
     @Setter
-    @Column(length = 65555)
+    @Column(length = 2047)
     private String eventDetails;
     @Getter
     @Setter
-    @Column(length = 65555)
+    @Column(length = 1023)
     private String eventAddress;
     @Getter
     @Setter
@@ -44,6 +45,7 @@ public class Invite {
     private Date createdAt;
     @Getter
     @Setter
+    @Column(length = 255)
     private String timezone;
     @Getter
     @Setter

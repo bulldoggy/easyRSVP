@@ -11,21 +11,22 @@ import {
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-//beautify words and colours () change bg color of app to pale green/yellow
-//timed delete for invites
+//frontend ping backend every 14.5mins
+//cronjob timed delete for invites after 30 days after invite date
+//ads at bottom of page
 
 function App() {
   return (
-    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: "#232946", minWidth: "906px" }}>
       <Header />
 
       <div>
         <Router>
           <Routes>
             <Route exact path="/" element={<Home />} />
-            <Route exact path="/rsvp/host" element={<Host />} />
-            <Route exact path="/rsvp/response" element={<Response />} />
-            <Route exact path="/rsvp/guest" element={<Guest />} />
+            <Route exact path="/host" element={<Host />} />
+            <Route exact path="/response" element={<Response />} />
+            <Route exact path="/guest" element={<Guest />} />
           </Routes>
         </Router>
       </div>
