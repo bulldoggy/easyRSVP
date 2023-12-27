@@ -7,7 +7,7 @@ export default function Footer() {
   const [clickCount, setClickCount] = useState(0);
 
   const fetchClickCount = () => {
-    fetch("http://localhost:8080/rsvp/getCount?counterId=1")
+    fetch("https://easyrsvp-web.onrender.com/rsvp/getCount?counterId=1")
       .then((response) => {
         return response.json();
       })
@@ -17,7 +17,7 @@ export default function Footer() {
   }
 
   const addClickCount = () => {
-    fetch("http://localhost:8080/rsvp/addCount?counterId=1", {
+    fetch("https://easyrsvp-web.onrender.com/rsvp/addCount?counterId=1", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
     })

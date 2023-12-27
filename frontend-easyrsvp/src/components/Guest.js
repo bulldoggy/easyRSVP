@@ -58,7 +58,7 @@ export default function Home() {
             e.preventDefault();
             const responseEditDTO = { guestCode, guestName, guestMobile, guestDecision, guestNotes };
 
-            fetch("http://localhost:8080/rsvp/editResponse", {
+            fetch("https://easyrsvp-web.onrender.com/rsvp/editResponse", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(responseEditDTO)
@@ -83,7 +83,7 @@ export default function Home() {
     const submitDeleteForm = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:8080/rsvp/deleteResponse?code=" + response.guestCode, {
+        fetch("https://easyrsvp-web.onrender.com/rsvp/deleteResponse?code=" + response.guestCode, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -94,7 +94,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8080/rsvp/guest?code=" + window.location.search.substring(1))
+        fetch("https://easyrsvp-web.onrender.com/rsvp/guest?code=" + window.location.search.substring(1))
             .then((response) => {
                 if (response.ok) {
                     return response.json();

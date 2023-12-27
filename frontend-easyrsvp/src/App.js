@@ -19,7 +19,7 @@ function App() {
 
   useEffect(() => {
     function keepAliveBackend() {
-      fetch("http://localhost:8080/rsvp/getCount?counterId=2")
+      fetch("https://easyrsvp-web.onrender.com/rsvp/getCount?counterId=2")
     }
     const interval = setInterval(() => keepAliveBackend(), 870000)
   }, [])

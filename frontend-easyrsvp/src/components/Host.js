@@ -135,7 +135,7 @@ export default function Host() {
 
             e.preventDefault();
             const inviteEditDTO = { inviteCode, ownerName, eventDetails, eventAddress, eventDate, timezone };
-            fetch("http://localhost:8080/rsvp/editInvite", {
+            fetch("https://easyrsvp-web.onrender.com/rsvp/editInvite", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(inviteEditDTO)
@@ -161,7 +161,7 @@ export default function Host() {
     const submitDeleteForm = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:8080/rsvp/deleteInvite?code=" + invite.inviteCode, {
+        fetch("https://easyrsvp-web.onrender.com/rsvp/deleteInvite?code=" + invite.inviteCode, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -174,7 +174,7 @@ export default function Host() {
     const submitDeleteRsvp = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:8080/rsvp/deleteResponse?code=" + rsvpCodeToDelete, {
+        fetch("https://easyrsvp-web.onrender.com/rsvp/deleteResponse?code=" + rsvpCodeToDelete, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
@@ -186,7 +186,7 @@ export default function Host() {
     }
 
     const fetchInvite = () => {
-        fetch("http://localhost:8080/rsvp/host?code=" + window.location.search.substring(1))
+        fetch("https://easyrsvp-web.onrender.com/rsvp/host?code=" + window.location.search.substring(1))
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -228,7 +228,7 @@ export default function Host() {
             setSavedEventDate(invite.eventDate);
             setSavedEventTimezone(invite.timezone);
             setInviteCode(invite.inviteCode);
-            setResponseLink(`http://localhost:3000/response?` + invite.responseCode);
+            setResponseLink(`https://easyrsvp.netlify.app/response?` + invite.responseCode);
         }
     }, [invite])
 
