@@ -10,4 +10,5 @@ public interface InviteService {
     public void deleteInvite(Invite invite);
     public Invite updateInvite(Invite invite);
     public List<Invite> getAllInvites();
+    public void deleteExpiredInvites();
 }

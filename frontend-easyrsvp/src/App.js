@@ -10,14 +10,23 @@ import {
 } from "react-router-dom";
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { useEffect } from 'react';
 
-//frontend ping backend every 14.5mins
 //cronjob timed delete for invites after 30 days after invite date
 //ads at bottom of page
 
 function App() {
+
+  useEffect(() => {
+    function keepAliveBackend() {
+      fetch("http://localhost:8080/rsvp/getCount?counterId=2")
+    }
+    const interval = setInterval(() => keepAliveBackend(), 870000)
+  }, [])
+
   return (
-    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: "#232946", minWidth: "906px" }}>
+    < div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: "#232946", minWidth: "906px" }
+    }>
       <Header />
 
       <div>
@@ -32,7 +41,7 @@ function App() {
       </div>
 
       <Footer />
-    </div>
+    </div >
   );
 }
 

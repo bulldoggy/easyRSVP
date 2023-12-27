@@ -5,7 +5,9 @@ import com.easyrsvpgroup.easyrsvp.repository.InviteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class InviteServiceImpl implements InviteService{
@@ -49,5 +51,16 @@ public class InviteServiceImpl implements InviteService{
     @Override
     public List<Invite> getAllInvites() {
         return inviteRepository.findAll();
+    }
+
+    @Override
+    public void deleteExpiredInvites() {
+        List<Invite> invites = getAllInvites();
+
+        for(Invite invite : invites) {
+            if(TimeUnit.DAYS.convert(Math.abs(new Date().getTime() - invite.getEventDate().getTime()), TimeUnit.MILLISECONDS) > 90) {
+                deleteInvite(invite);
+            }
+        }
     }
 }

@@ -136,7 +136,7 @@ public class RsvpController {
 
     @GetMapping("/getCount")
     public Counter getCount(@RequestParam("counterId") int counterId) {
-       return counterService.getCount(counterId);
+        return counterService.getCount(counterId);
     }
 
     @PutMapping("/addCount")
