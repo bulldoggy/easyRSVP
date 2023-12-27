@@ -142,20 +142,22 @@ export default function Home() {
                         <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
 
                         <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs} >
-                                <DateTimePicker fullWidth disableOpenPicker readOnly
-                                    format='DD/MM/YYYY hh:mm A'
-                                    sx={{
-                                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                        marginTop: "-13px",
-                                        marginLeft: "-15px"
-                                    }}
-                                    value={dayjs(invite.eventDate)}
-                                    ampm={true}
-                                />
-                            </LocalizationProvider>
+                            <div style={{ width: "40%" }}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs} >
+                                    <DateTimePicker fullWidth disableOpenPicker readOnly
+                                        format='DD/MM/YYYY hh:mm A'
+                                        sx={{
+                                            '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                            marginTop: "-13px",
+                                            marginLeft: "-47px"
+                                        }}
+                                        value={dayjs(invite.eventDate)}
+                                        ampm={true}
+                                    />
+                                </LocalizationProvider>
+                            </div>
 
-                            <TextField variant="standard" fullWidth disabled style={{ width: "65%" }}
+                            <TextField variant="standard" fullWidth disabled style={{ width: "75%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
@@ -167,7 +169,7 @@ export default function Home() {
                                 value={invite.timezone}
                             />
                         </div>
-                        <br/>
+                        <br />
                     </Box>
                 </Paper>
             }
@@ -298,7 +300,7 @@ export default function Home() {
                                 value={guestNotes}
                             />
                         </Box>
-                        <br/>
+                        <br />
                     </Paper>
 
                     <Paper elevation={3} style={paperStyle}>

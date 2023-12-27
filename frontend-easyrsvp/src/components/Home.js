@@ -88,7 +88,7 @@ export default function Home() {
                         gap="15px"
                         autoComplete="off"
                     >
-                        <TextField label="Host Name" multiline fullWidth required 
+                        <TextField label="Host Name" multiline fullWidth required
                             value={ownerName}
                             onChange={(e) => {
                                 setOwnerName(e.target.value)
@@ -154,7 +154,7 @@ export default function Home() {
                 <>
                     <Paper elevation={3} style={paperStyle}>
                         <h2> Invite created! </h2>
-                        <p style={{fontSize: "13px", marginTop: "-18px", color: "gray"}}>(Note: this invite will be deleted 90 days after the event)</p>
+                        <p style={{ fontSize: "13px", marginTop: "-18px", color: "gray" }}>(Note: this invite will be deleted 90 days after the event)</p>
 
                         <Box
                             component="form"
@@ -205,20 +205,22 @@ export default function Home() {
 
                             <h4 style={{ display: "flex", marginBottom: "0px" }}>Date:</h4>
                             <div style={{ width: "parent", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} >
-                                    <DateTimePicker fullWidth disableOpenPicker readOnly
-                                        format='DD/MM/YYYY hh:mm A'
-                                        sx={{
-                                            '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                            marginTop: "-13px",
-                                            marginLeft: "-15px"
-                                        }}
-                                        value={dayjs(invite.eventDate)}
-                                        ampm={true}
-                                    />
-                                </LocalizationProvider>
+                                <div style={{ width: "40%"}}>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs} >
+                                        <DateTimePicker fullWidth disableOpenPicker readOnly
+                                            format='DD/MM/YYYY hh:mm A'
+                                            sx={{
+                                                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                                marginTop: "-13px",
+                                                marginLeft: "-47px"
+                                            }}
+                                            value={dayjs(invite.eventDate)}
+                                            ampm={true}
+                                        />
+                                    </LocalizationProvider>
+                                </div>
 
-                                <TextField id="outlined-basic" variant="standard" multiline fullWidth disabled style={{ width: "65%" }}
+                                <TextField id="outlined-basic" variant="standard" multiline fullWidth disabled
                                     sx={{
                                         "& .MuiInputBase-input.Mui-disabled": {
                                             WebkitTextFillColor: "#000000",
