@@ -205,7 +205,7 @@ export default function Home() {
                                 />
                             </LocalizationProvider>
 
-                            <TextField variant="standard" fullWidth disabled style={{ width: "85%" }}
+                            <TextField variant="standard" fullWidth disabled style={{ width: "75%" }}
                                 sx={{
                                     "& .MuiInputBase-input.Mui-disabled": {
                                         WebkitTextFillColor: "#000000",
